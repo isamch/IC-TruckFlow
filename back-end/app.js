@@ -1,11 +1,11 @@
 import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
-import morgan from 'morgan'
 import createError from 'http-errors'
-import mainRouter from './src/routes/api.js'
 import errorHandler from './src/middleware/errorHandler.js'
 import cookieParser from "cookie-parser";
+import mainRouter from './src/routes/index.js'
+
 const app = express()
 
 // Core Middleware
@@ -16,10 +16,6 @@ app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser());
 
 
-// Logging
-if (process.env.NODE_ENV === 'development') {
-  app.use(morgan('dev'))
-}
 
 // Main Router
 app.use("/api", mainRouter)

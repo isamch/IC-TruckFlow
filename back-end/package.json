@@ -1,7 +1,7 @@
 {
-  "name": "laboratory-microservice",
+  "name": "back-end-ic-truckflow",
   "version": "0.1.0",
-  "description": "Laboratory Microservice with Asymmetric Auth",
+  "description": "IC TruckFlow Back-End",
   "private": true,
   "main": "server.js",
   "type": "module",
