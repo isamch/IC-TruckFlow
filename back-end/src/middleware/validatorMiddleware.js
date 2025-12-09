@@ -25,9 +25,9 @@ export default (schema) => (req, res, next) => {
     abortEarly: false, // Return all validation errors
     allowUnknown: true, // Allow properties not defined in schema (for safety)
     stripUnknown: { // Remove unknown properties from validated output
-        body: true,
-        params: true,
-        query: true
+      body: true,
+      params: true,
+      query: true
     }
   })
 

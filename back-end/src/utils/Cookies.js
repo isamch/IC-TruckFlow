@@ -18,5 +18,5 @@ export const clearCookie = (res, name, options = {}) => {
     path: "/",
     ...options,
   });
-  
+
 };

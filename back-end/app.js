@@ -18,7 +18,7 @@ app.use(cookieParser());
 
 
 // Main Router
-app.use("/api", mainRouter)
+app.use("/api/v1", mainRouter)
 
 
 // 404 Handler
