@@ -8,11 +8,11 @@
   "scripts": {
     "dev": "nodemon server.js",
     "start": "node server.js",
-    "make:controller": "icmern make:controller",
-    "make:model": "icmern make:model",
-    "make:route": "icmern make:route",
-    "make:middleware": "icmern make:middleware",
-    "make:factory": "icmern make:factory"
+    "make:controller": "node src/console/index.js make:controller",
+    "make:model": "node src/console/index.js make:model",
+    "make:route": "node src/console/index.js make:route",
+    "make:middleware": "node src/console/index.js make:middleware",
+    "make:factory": "node src/console/index.js make:factory"
   },
   "author": "isam chajia",
   "dependencies": {

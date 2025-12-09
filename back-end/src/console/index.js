@@ -24,11 +24,11 @@ const generateFile = (type, name, subfolder = "") => {
   if (!fs.existsSync(destDir)) fs.mkdirSync(destDir, { recursive: true });
   let fileName;
   switch (type) {
-    case "controller": fileName = name[0].toUpperCase() + name.slice(1) + "Controller.js"; break;
-    case "model": fileName = name[0].toUpperCase() + name.slice(1) + ".js"; break;
-    case "route": fileName = name[0].toUpperCase() + name.slice(1) + "Routes.js"; break;
-    case "middleware": fileName = name[0].toUpperCase() + name.slice(1) + ".js"; break;
-    case "factory": fileName = name[0].toUpperCase() + name.slice(1) + "Factory.js"; break;
+    case "controller": fileName = name + ".controller.js"; break;
+    case "model": fileName = name + ".model.js"; break;
+    case "route": fileName = name + ".routes.js"; break;
+    case "middleware": fileName = name + ".middleware.js"; break;
+    case "factory": fileName = name + ".factory.js"; break;
     default: fileName = name + ".js";
   }
   const destPath = path.join(destDir, fileName);
