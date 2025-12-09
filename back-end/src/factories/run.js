@@ -4,7 +4,7 @@ dotenv.config();
 import connectDB from "../config/db.js";
 
 // call factory:
-// import { createFakeUser } from "./userFactory.js";
+import { createFakeadmin } from "./admin.factory.js";
 
 const run = async () => {
   try {
@@ -12,10 +12,10 @@ const run = async () => {
 
     console.log("🔹 Creating fake users...");
 
-    
-    for (let i = 0; i < 5; i++) {
 
-      const user = await createFakeUser();
+    for (let i = 0; i < 1; i++) {
+
+      const user = await createFakeadmin();
       console.log("✅ User created:", user.email);
 
     }

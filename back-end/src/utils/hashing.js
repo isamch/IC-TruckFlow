@@ -14,5 +14,5 @@ export const comparePassword = async (enteredPassword, hashedPassword) => {
 
 // hmax for simple hash:
 export const hmacHash = (value) => {
-	return createHmac('sha256', process.env.HMAC_VERIFICATION_CODE_SECRET).update(value).digest('hex');
+  return createHmac('sha256', process.env.HMAC_VERIFICATION_CODE_SECRET).update(value).digest('hex');
 };

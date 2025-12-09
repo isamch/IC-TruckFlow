@@ -12,7 +12,8 @@
     "make:model": "node src/console/index.js make:model",
     "make:route": "node src/console/index.js make:route",
     "make:middleware": "node src/console/index.js make:middleware",
-    "make:factory": "node src/console/index.js make:factory"
+    "make:factory": "node src/console/index.js make:factory",
+    "make:run": "node src/factories/run.js"
   },
   "author": "isam chajia",
   "dependencies": {
