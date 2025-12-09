@@ -115,3 +115,18 @@ export const logout = asyncHandler(async (req, res) => {
 });
 
 
+
+/**
+ * @desc    Get current user info
+ * @route   GET /api/auth/me
+ * @access  Private
+ */
+export const getMe = asyncHandler(async (req, res) => {
+  const user = await user.findById(req.user.userId).select("-passwordHash");
+
+  if (!user) {
+    return next(ApiError.notFound('User not found'))
+  }
+
+  return successResponse(res, 200, 'User info retrieved successfully', user);
+});
