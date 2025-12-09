@@ -7,7 +7,12 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon server.js",
-    "start": "node server.js"
+    "start": "node server.js",
+    "make:controller": "icmern make:controller",
+    "make:model": "icmern make:model",
+    "make:route": "icmern make:route",
+    "make:middleware": "icmern make:middleware",
+    "make:factory": "icmern make:factory"
   },
   "author": "isam chajia",
   "dependencies": {
