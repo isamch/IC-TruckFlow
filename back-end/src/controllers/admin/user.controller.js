@@ -154,3 +154,25 @@ export const deleteUser = asyncHandler(async (req, res, next) => {
 
 });
 
+
+
+/**
+ * @desc    Toggle user active status
+ * @route   PATCH /api/v1/admin/users/:id/toggle-active
+ * @access  Private/Admin
+ */
+export const toggleUserActiveStatus = asyncHandler(async (req, res, next) => {
+
+  const user = await user.findById(req.params.id);
+
+  if (!user) {
+    return next(ApiError.notFound("User not found"));
+  }
+
+  user.isActive = !user.isActive;
+
+  await user.save();
+
+  return successResponse(res, 200, "user active status toggled successfully", user);
+
+});
