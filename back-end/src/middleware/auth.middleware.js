@@ -1,5 +1,5 @@
 import { verifyAccessToken } from '../utils/jwt.js'
-import { unauthorized, forbidden } from '../utils/ApiError.js'
+import { unauthorized, forbidden } from '../utils/apiError.js'
 import asyncHandler from '../utils/asyncHandler.js'
 
 /**
@@ -31,10 +31,8 @@ export const protect = asyncHandler(async (req, res, next) => {
   // The payload we created in 'login' contains everything we need
   // No need for a database (DB) hit here, this is very fast
   req.user = {
-    id: payload.id, // User ID
-    role: payload.role, // 'Doctor', 'Admin', etc.
-    profileId: payload.profileId, // Doctor ID, Patient ID, etc.
-    permissions: payload.permissions || [] // [ 'read:patient', 'create:appointment' ]
+    id: payload.id,
+    role: payload.role,
   }
 
   next()

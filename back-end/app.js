@@ -2,7 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
 import createError from 'http-errors'
-import errorHandler from './src/middleware/errorHandler.js'
+import errorHandler from './src/middleware/error.handler.js'
 import cookieParser from "cookie-parser";
 import mainRouter from './src/routes/index.js'
 

@@ -5,7 +5,7 @@ import asyncHandler from "../utils/asyncHandler.js";
 import { comparePassword } from "../utils/hashing.js";
 import { generateAccessToken, generateRefreshToken, decode, verifyRefreshToken } from "../utils/jwt.js";
 import { successResponse } from "../utils/apiResponse.js";
-import * as ApiError from '../../utils/ApiError.js'
+import * as ApiError from '../utils/apiError.js'
 
 
 

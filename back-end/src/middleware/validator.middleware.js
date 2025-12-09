@@ -8,7 +8,7 @@ import Joi from 'joi'
 export default (schema) => (req, res, next) => {
   // Define a combined schema for validation
   const requestSchema = Joi.object({
-    body: schema.body || Joi.object(), // Default to empty object if not provided
+    body: schema.body || Joi.object(),
     params: schema.params || Joi.object(),
     query: schema.query || Joi.object()
   })
@@ -22,9 +22,9 @@ export default (schema) => (req, res, next) => {
 
   // Perform validation
   const { error, value } = requestSchema.validate(dataToValidate, {
-    abortEarly: false, // Return all validation errors
-    allowUnknown: true, // Allow properties not defined in schema (for safety)
-    stripUnknown: { // Remove unknown properties from validated output
+    abortEarly: false,
+    allowUnknown: true,
+    stripUnknown: {
       body: true,
       params: true,
       query: true
@@ -32,16 +32,14 @@ export default (schema) => (req, res, next) => {
   })
 
   if (error) {
-    // Mark error as Joi error for the errorHandler
     error.isJoi = true
     return next(error)
   }
 
-  // Overwrite request parts with validated (and potentially sanitized/stripped) values
-  // This is important for security and consistency
+
   req.body = value.body
   req.params = value.params
   req.query = value.query
 
-  next() // Proceed to the next middleware or controller
+  next()
 }
