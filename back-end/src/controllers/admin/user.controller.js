@@ -26,9 +26,11 @@ export const getAllUsers = asyncHandler(async (req, res, next) => {
     return next(ApiError.notFound("Users not found"));
   }
 
+  const total = await user.countDocuments();
+
   return successResponse(res, 200, "users fetched successfully", {
     users,
-    pagination: { page, perPage },
+    pagination: { page, perPage, total }
   });
 
 });
