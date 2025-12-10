@@ -12,7 +12,7 @@ import adminMaintenanceRoutes from './api/admin/maintenance.routes.js';
 import driverMaintenanceRoutes from './api/driver/maintenance.routes.js';
 import maintenanceRulesRoutes from './api/admin/maintenanceRules.routes.js';
 import maintenanceAlertsRoutes from './api/admin/maintenanceAlerts.routes.js';
-
+import driverMaintenanceAlertsRoutes from './api/driver/maintenanceAlerts.routes.js';
 
 
 const router = express.Router();
@@ -37,6 +37,7 @@ router.use("/admin/maintenance-alerts", maintenanceAlertsRoutes);
 router.use("/driver/trips", driverTripRoutes);
 router.use("/driver/fuel-logs", driverFuelLogRoutes);
 router.use("/driver/maintenance-logs", driverMaintenanceRoutes);
+router.use("/driver/my-truck-alerts", driverMaintenanceAlertsRoutes);
 
 
 
