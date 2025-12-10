@@ -188,7 +188,11 @@ export const finishTripValidation = Joi.object({
     .messages({
       'number.base': 'Fuel used must be a number',
       'number.min': 'Fuel used cannot be negative'
-    })
+    }),
+
+  notes: Joi.string()
+    .optional()
+    .allow('')
 });
 
 // Update Notes Validation (Driver)
