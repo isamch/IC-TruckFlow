@@ -38,33 +38,3 @@ export const protect = asyncHandler(async (req, res, next) => {
   next()
 })
 
-
-
-/**
- * @desc Middleware to check for a specific permission
- * @param {string} permission - The required permission (e.g., 'create:user')
- * @example router.post('/', protect, authorize('create:user'), createUser)
- */
-export const authorize = (permission) => {
-  return (req, res, next) => {
-    if (!req.user || !req.user.permissions.includes(permission)) {
-      throw forbidden(`Forbidden: You do not have the required permission ('${permission}')`)
-    }
-    next()
-  }
-}
-
-
-/**
- * @desc Middleware to check for a specific role (easier way)
- * @param  {...string} roles - Allowed roles (e.g., 'Admin', 'Doctor')
- * @example router.get('/', protect, checkRole('Admin', 'Doctor'), getData)
- */
-export const checkRole = (...roles) => {
-  return (req, res, next) => {
-    if (!req.user || !roles.includes(req.user.role)) {
-      throw forbidden(`Forbidden: Your role ('${req.user.role}') is not authorized`)
-    }
-    next()
-  }
-}
