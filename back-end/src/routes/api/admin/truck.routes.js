@@ -40,6 +40,7 @@ router.put("/:id", validate({ params: truckIdValidation, body: updateTruckValida
 
 router.delete("/:id", validate({ params: truckIdValidation }), deleteTruck);
 
+
 // Update truck status
 router.patch("/:id/status", validate({ params: truckIdValidation, body: updateTruckStatusValidation }), updateTruckStatus);
 
