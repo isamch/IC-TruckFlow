@@ -1,36 +1,39 @@
-import Truck from "../../models/truck.model.js";
-import MaintenanceRules from "../../models/maintenanceRules.model.js";
-import MaintenanceLog from "../../models/maintenanceLog.model.js";
-import Trip from "../../models/trip.model.js";
+import truck from "../../models/truck.model.js";
+import maintenanceRules from "../../models/maintenanceRules.model.js";
+import maintenanceLog from "../../models/maintenanceLog.model.js";
+import trip from "../../models/trip.model.js";
 import asyncHandler from "../../utils/asyncHandler.js";
 import { successResponse } from "../../utils/apiResponse.js";
 import * as ApiError from "../../utils/apiError.js";
 
 
 /**
- * @desc    Get maintenance alerts for driver's current truck
+ * @desc    Get maintenance alerts for driver's assigned truck
  * @route   GET /api/v1/driver/my-truck-alerts
  * @access  Private/Driver
  */
 export const getMyTruckAlerts = asyncHandler(async (req, res, next) => {
-  // Get driver's active trip
-  const activeTrip = await Trip.findOne({
+  // Get driver's next trip (to_do or in_progress)
+  const assignedTrip = await trip.findOne({
     driver: req.user.id,
-    status: 'in_progress'
-  }).populate('truck');
+    status: { $in: ['to_do', 'in_progress'] }
+  })
+    .populate('truck')
+    .sort({ plannedDate: 1 }); // Get the earliest trip
 
-  if (!activeTrip) {
-    return successResponse(res, 200, "No active trip found", {
-      hasActiveTrip: false,
+  if (!assignedTrip) {
+    return successResponse(res, 200, "No assigned trip found", {
+      hasAssignedTrip: false,
+      tripStatus: null,
       alerts: []
     });
   }
 
-  const truck = activeTrip.truck;
+  const truckDoc = assignedTrip.truck;
   const alerts = [];
 
   // Get all maintenance rules
-  const rules = await MaintenanceRules.find();
+  const rules = await maintenanceRules.find();
 
   for (const rule of rules) {
     let alert = null;
@@ -38,15 +41,15 @@ export const getMyTruckAlerts = asyncHandler(async (req, res, next) => {
     // Check km-based maintenance
     if (rule.everyKm) {
       // Get last maintenance of this type for this truck
-      const lastMaintenance = await MaintenanceLog.findOne({
-        truck: truck._id,
+      const lastMaintenance = await maintenanceLog.findOne({
+        truck: truckDoc._id,
         type: rule.type
       }).sort({ date: -1 });
 
       const lastMaintenanceKm = lastMaintenance ?
-        (lastMaintenance.date ? truck.currentKm - (truck.currentKm - truck.lastOilChangeKm || 0) : 0) : 0;
+        (lastMaintenance.date ? truckDoc.currentKm - (truckDoc.currentKm - truckDoc.lastOilChangeKm || 0) : 0) : 0;
 
-      const kmSinceLastMaintenance = truck.currentKm - lastMaintenanceKm;
+      const kmSinceLastMaintenance = truckDoc.currentKm - lastMaintenanceKm;
       const remainingKm = rule.everyKm - kmSinceLastMaintenance;
 
       if (remainingKm <= 1000 && remainingKm > 0) {
@@ -71,13 +74,13 @@ export const getMyTruckAlerts = asyncHandler(async (req, res, next) => {
 
     // Check time-based maintenance
     if (rule.everyMonths && !alert) {
-      const lastMaintenance = await MaintenanceLog.findOne({
-        truck: truck._id,
+      const lastMaintenance = await maintenanceLog.findOne({
+        truck: truckDoc._id,
         type: rule.type
       }).sort({ date: -1 });
 
       const lastMaintenanceDate = lastMaintenance ?
-        new Date(lastMaintenance.date) : new Date(truck.createdAt);
+        new Date(lastMaintenance.date) : new Date(truckDoc.createdAt);
       const monthsSinceLastMaintenance = Math.floor(
         (Date.now() - lastMaintenanceDate) / (1000 * 60 * 60 * 24 * 30)
       );
@@ -108,20 +111,34 @@ export const getMyTruckAlerts = asyncHandler(async (req, res, next) => {
     }
   }
 
+  // Sort alerts by severity
+  const sortedAlerts = alerts.sort((a, b) => {
+    const severityOrder = { critical: 0, high: 1, medium: 2 };
+    return severityOrder[a.severity] - severityOrder[b.severity];
+  });
+
   return successResponse(res, 200, "Maintenance alerts fetched successfully", {
-    hasActiveTrip: true,
-    truck: {
-      _id: truck._id,
-      registrationNumber: truck.registrationNumber,
-      brand: truck.brand,
-      model: truck.model,
-      currentKm: truck.currentKm
+    hasAssignedTrip: true,
+    tripStatus: assignedTrip.status,
+    trip: {
+      _id: assignedTrip._id,
+      startLocation: assignedTrip.startLocation,
+      endLocation: assignedTrip.endLocation,
+      plannedDate: assignedTrip.plannedDate,
+      status: assignedTrip.status
     },
-    totalAlerts: alerts.length,
-    criticalAlerts: alerts.filter(a => a.severity === 'critical').length,
-    alerts: alerts.sort((a, b) => {
-      const severityOrder = { critical: 0, high: 1, medium: 2 };
-      return severityOrder[a.severity] - severityOrder[b.severity];
-    })
+    truck: {
+      _id: truckDoc._id,
+      registrationNumber: truckDoc.registrationNumber,
+      brand: truckDoc.brand,
+      model: truckDoc.model,
+      currentKm: truckDoc.currentKm,
+      status: truckDoc.status
+    },
+    totalAlerts: sortedAlerts.length,
+    criticalAlerts: sortedAlerts.filter(a => a.severity === 'critical').length,
+    highAlerts: sortedAlerts.filter(a => a.severity === 'high').length,
+    canStartTrip: sortedAlerts.filter(a => a.severity === 'critical').length === 0,
+    alerts: sortedAlerts
   });
 });
