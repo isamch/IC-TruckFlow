@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 const maintenanceRulesSchema = new mongoose.Schema({
   type: {
     type: String,
-    enum: ['oil', 'tires', 'general'],
+    enum: ['oil', 'tires', 'engine', 'general'],
     required: true
   },
   everyKm: Number,

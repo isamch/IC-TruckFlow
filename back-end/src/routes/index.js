@@ -10,6 +10,8 @@ import adminFuelLogRoutes from './api/admin/fuelLog.routes.js';
 import driverFuelLogRoutes from './api/driver/fuelLog.routes.js';
 import adminMaintenanceRoutes from './api/admin/maintenance.routes.js';
 import driverMaintenanceRoutes from './api/driver/maintenance.routes.js';
+import maintenanceRulesRoutes from './api/admin/maintenanceRules.routes.js';
+import maintenanceAlertsRoutes from './api/admin/maintenanceAlerts.routes.js';
 
 
 
@@ -27,6 +29,9 @@ router.use("/admin/tires", tireRoutes);
 router.use("/admin/trips", adminTripRoutes);
 router.use("/admin/fuel-logs", adminFuelLogRoutes);
 router.use("/admin/maintenance-logs", adminMaintenanceRoutes);
+router.use("/admin/maintenance-rules", maintenanceRulesRoutes);
+router.use("/admin/maintenance-alerts", maintenanceAlertsRoutes);
+
 
 // Driver routes
 router.use("/driver/trips", driverTripRoutes);
