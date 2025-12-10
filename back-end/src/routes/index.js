@@ -12,6 +12,8 @@ router.use("/auth", authRoutes);
 // admin routes
 router.use("/admin/users", userRoutes);
 router.use("/admin/trucks", truckRoutes);
+router.use("/admin/trailers", trailerRoutes);
+
 
 
 

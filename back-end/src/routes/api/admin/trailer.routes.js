@@ -15,8 +15,8 @@ import {
   trailerIdValidation,
   updateTrailerStatusValidation
 } from "../../../validations/trailer.validation.js";
-import { protect, authorize } from "../../../middleware/auth.middleware.js";
-// import { authorize } from "../../../middleware/authorize.middleware.js";
+import { protect } from "../../../middleware/auth.middleware.js";
+import { authorize } from "../../../middleware/authorize.middleware.js";
 
 const router = express.Router();
 
