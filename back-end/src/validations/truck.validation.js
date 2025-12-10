@@ -147,3 +147,36 @@ export const truckIdValidation = Joi.object({
       'any.required': 'Truck ID is required'
     })
 });
+
+
+// Update Truck Status Validation
+export const updateTruckStatusValidation = Joi.object({
+  status: Joi.string()
+    .valid('available', 'on_trip', 'maintenance')
+    .required()
+    .messages({
+      'any.only': 'Status must be available, on_trip, or maintenance'
+    })
+});
+
+// Add Tire Validation
+export const addTireValidation = Joi.object({
+  tireId: Joi.string()
+    .pattern(/^[0-9a-fA-F]{24}$/)
+    .required()
+    .messages({
+      'string.pattern.base': 'Invalid tire ID format',
+      'any.required': 'Tire ID is required'
+    })
+});
+
+// Remove Tire Validation
+export const removeTireValidation = Joi.object({
+  tireId: Joi.string()
+    .pattern(/^[0-9a-fA-F]{24}$/)
+    .required()
+    .messages({
+      'string.pattern.base': 'Invalid tire ID format',
+      'any.required': 'Tire ID is required'
+    })
+});
