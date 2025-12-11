@@ -22,6 +22,8 @@ export const getMaintenanceAlerts = asyncHandler(async (req, res, next) => {
 
   for (const t of trucks) {
     for (const rule of rules) {
+      let alert = null;
+
       // get last maintenance for this type once for each rule
       const lastMaintenance = await MaintenanceLog.findOne({
         truck: t._id,
@@ -35,36 +37,20 @@ export const getMaintenanceAlerts = asyncHandler(async (req, res, next) => {
         const remainingKm = rule.everyKm - kmSinceLastMaintenance;
 
         if (remainingKm <= 1000 && remainingKm > 0) {
-          alerts.push({
-            type: 'km',
-            truck: {
-              _id: t._id,
-              registrationNumber: t.registrationNumber,
-              brand: t.brand,
-              model: t.model,
-              currentKm: t.currentKm
-            },
+          alert = {
             maintenanceType: rule.type,
             alertType: 'km',
             remainingKm,
             message: `${t.registrationNumber} needs ${rule.type} maintenance in ${remainingKm} km`
-          });
+          };
         } else if (remainingKm <= 0) {
-          alerts.push({
-            type: 'km',
-            truck: {
-              _id: t._id,
-              registrationNumber: t.registrationNumber,
-              brand: t.brand,
-              model: t.model,
-              currentKm: t.currentKm
-            },
+          alert = {
             maintenanceType: rule.type,
             alertType: 'km',
             overdue: true,
             overdueKm: Math.abs(remainingKm),
             message: `${t.registrationNumber} ${rule.type} maintenance is overdue by ${Math.abs(remainingKm)} km`
-          });
+          };
         }
       }
 
@@ -74,39 +60,36 @@ export const getMaintenanceAlerts = asyncHandler(async (req, res, next) => {
         const monthsSinceLastMaintenance = dayjs().diff(dayjs(lastDate), 'month');
         const remainingMonths = rule.everyMonths - monthsSinceLastMaintenance;
 
-        if (remainingMonths <= 1 && remainingMonths > 0) {
-          alerts.push({
-            type: 'time',
-            truck: {
-              _id: t._id,
-              registrationNumber: t.registrationNumber,
-              brand: t.brand,
-              model: t.model,
-              currentKm: t.currentKm
-            },
+        if (remainingMonths <= 1 && remainingMonths > 0 && !alert) {
+          alert = {
             maintenanceType: rule.type,
             alertType: 'time',
             remainingMonths,
             message: `${t.registrationNumber} needs ${rule.type} maintenance in ${remainingMonths} month(s)`
-          });
-        } else if (remainingMonths <= 0) {
-          alerts.push({
-            type: 'time',
-            truck: {
-              _id: t._id,
-              registrationNumber: t.registrationNumber,
-              brand: t.brand,
-              model: t.model,
-              currentKm: t.currentKm
-            },
+          };
+        } else if (remainingMonths <= 0 && !alert) {
+          alert = {
             maintenanceType: rule.type,
             alertType: 'time',
             overdue: true,
             overdueMonths: Math.abs(remainingMonths),
             message: `${t.registrationNumber} ${rule.type} maintenance is overdue by ${Math.abs(remainingMonths)} month(s)`
-          });
+          };
         }
       }
+    }
+
+    if (alert) {
+      alerts.push({
+        ...alert,
+        truck: {
+          _id: t._id,
+          registrationNumber: t.registrationNumber,
+          brand: t.brand,
+          model: t.model,
+          currentKm: t.currentKm
+        }
+      });
     }
   }
 
