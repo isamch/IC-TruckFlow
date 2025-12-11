@@ -17,8 +17,13 @@ import driverMaintenanceAlertsRoutes from './api/driver/maintenanceAlerts.routes
 
 const router = express.Router();
 
+router.use("/home", (req, res) => {
+  res.send("Home");
+});
+
 //  auth routes
 router.use("/auth", authRoutes);
+
 
 
 // admin routes
