@@ -4,6 +4,8 @@ import asyncHandler from "../../utils/asyncHandler.js";
 import { successResponse } from "../../utils/apiResponse.js";
 import * as ApiError from "../../utils/apiError.js";
 import { getPagination } from "../../utils/pagination.js";
+import { calculateTruckMaintenanceAlerts } from "../../utils/maintenanceHelper.js";
+
 
 
 /**
@@ -267,4 +269,39 @@ export const removeTireFromTruck = asyncHandler(async (req, res, next) => {
   await truck.populate('tires');
 
   return successResponse(res, 200, "Tire removed from truck successfully", truck);
+});
+
+
+
+
+/**
+ * @desc    Get maintenance status and alerts for a specific truck
+ * @route   GET /api/v1/admin/trucks/:id/maintenance-status
+ * @access  Private/Admin
+ */
+export const getTruckMaintenanceStatus = asyncHandler(async (req, res, next) => {
+  // Find truck
+  const truck = await truck.findById(req.params.id);
+
+  if (!truck) {
+    return next(ApiError.notFound("Truck not found"));
+  }
+
+  // Calculate maintenance alerts using helper function
+  const maintenanceData = await calculateTruckMaintenanceAlerts(truck);
+
+  return successResponse(res, 200, "Truck maintenance status fetched successfully", {
+    truck: {
+      _id: truck._id,
+      registrationNumber: truck.registrationNumber,
+      brand: truck.brand,
+      model: truck.model,
+      currentKm: truck.currentKm,
+      status: truck.status
+    },
+    maintenance: {
+      totalAlerts: maintenanceData.totalAlerts,
+      alerts: maintenanceData.alerts
+    }
+  });
 });

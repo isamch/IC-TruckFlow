@@ -7,7 +7,8 @@ import {
   deleteTruck,
   updateTruckStatus,
   addTireToTruck,
-  removeTireFromTruck
+  removeTireFromTruck,
+  getTruckMaintenanceStatus
 } from "../../../controllers/admin/truck.controller.js";
 
 import validate from "../../../middleware/validator.middleware.js";
@@ -50,6 +51,7 @@ router.patch("/:id/add-tire", validate({ params: truckIdValidation, body: addTir
 // Remove tire from truck
 router.patch("/:id/remove-tire", validate({ params: truckIdValidation, body: removeTireValidation }), removeTireFromTruck);
 
-
+// Get truck maintenance status
+router.get("/:id/maintenance-status", validate({ params: truckIdValidation }), getTruckMaintenanceStatus);
 
 export default router;

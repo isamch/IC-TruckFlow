@@ -1,11 +1,8 @@
-import truck from "../../models/truck.model.js";
-import maintenanceRules from "../../models/maintenanceRules.model.js";
-import maintenanceLog from "../../models/maintenanceLog.model.js";
 import trip from "../../models/trip.model.js";
 import asyncHandler from "../../utils/asyncHandler.js";
 import { successResponse } from "../../utils/apiResponse.js";
-import * as ApiError from "../../utils/apiError.js";
-import dayjs from "dayjs";
+import { calculateTruckMaintenanceAlerts } from "../../utils/maintenanceHelper.js";
+
 
 /**
  * @desc    Get maintenance alerts for driver's assigned trucks
@@ -13,7 +10,7 @@ import dayjs from "dayjs";
  * @access  Private/Driver
  */
 export const getMyTruckAlerts = asyncHandler(async (req, res, next) => {
-  // Get driver's assigned trips
+  // Get driver's assigned trips (to_do or in_progress)
   const assignedTrips = await trip.find({
     driver: req.user.id,
     status: { $in: ['to_do', 'in_progress'] }
@@ -28,7 +25,7 @@ export const getMyTruckAlerts = asyncHandler(async (req, res, next) => {
     });
   }
 
-  // Create a map of unique trucks
+  // Get unique trucks from trips
   function getUniqueTrucks(trips) {
     const uniqueTrucks = {};
     trips.forEach(trip => {
@@ -40,88 +37,20 @@ export const getMyTruckAlerts = asyncHandler(async (req, res, next) => {
   const uniqueTrucksMap = getUniqueTrucks(assignedTrips);
 
 
+  const allAlerts = [];
 
-  const alerts = [];
-
-  // Get all maintenance rules
-  const rules = await maintenanceRules.find();
-
-  // Loop over each unique truck
+  // Calculate alerts for each unique truck using helper function
   for (const truckDoc of uniqueTrucksMap) {
-    for (const rule of rules) {
-      let alert = null;
+    const maintenanceData = await calculateTruckMaintenanceAlerts(truckDoc);
 
-      // Maintenance by kilometers
-      if (rule.everyKm) {
-        const lastMaintenance = await maintenanceLog.findOne({
-          truck: truckDoc._id,
-          type: rule.type
-        }).sort({ date: -1 });
-
-        const lastMaintenanceKm = lastMaintenance ? lastMaintenance.km : 0;
-        const kmSinceLastMaintenance = truckDoc.currentKm - lastMaintenanceKm;
-        const remainingKm = rule.everyKm - kmSinceLastMaintenance;
-
-        if (remainingKm <= 1000 && remainingKm > 0) {
-          alert = {
-            truckId: truckDoc._id,
-            maintenanceType: rule.type,
-            alertType: 'km',
-            severity: remainingKm <= 500 ? 'high' : 'medium',
-            remainingKm,
-            message: `${rule.type} maintenance needed in ${remainingKm} km`
-          };
-        } else if (remainingKm <= 0) {
-          alert = {
-            truckId: truckDoc._id,
-            maintenanceType: rule.type,
-            alertType: 'km',
-            severity: 'critical',
-            overdue: true,
-            overdueKm: Math.abs(remainingKm),
-            message: `${rule.type} maintenance is overdue by ${Math.abs(remainingKm)} km!`
-          };
-        }
-      }
-
-      // Maintenance by months
-      if (rule.everyMonths && !alert) {
-        const lastMaintenance = await maintenanceLog.findOne({
-          truck: truckDoc._id,
-          type: rule.type
-        }).sort({ date: -1 });
-
-        const lastMaintenanceDate = lastMaintenance ? lastMaintenance.date : truckDoc.createdAt;
-        const monthsSinceLastMaintenance = dayjs().diff(dayjs(lastMaintenanceDate), 'month');
-        const remainingMonths = rule.everyMonths - monthsSinceLastMaintenance;
-
-        if (remainingMonths <= 1 && remainingMonths > 0) {
-          alert = {
-            truckId: truckDoc._id,
-            maintenanceType: rule.type,
-            alertType: 'time',
-            severity: 'medium',
-            remainingMonths,
-            message: `${rule.type} maintenance needed in ${remainingMonths} month(s)`
-          };
-        } else if (remainingMonths <= 0) {
-          alert = {
-            truckId: truckDoc._id,
-            maintenanceType: rule.type,
-            alertType: 'time',
-            severity: 'critical',
-            overdue: true,
-            overdueMonths: Math.abs(remainingMonths),
-            message: `${rule.type} maintenance is overdue by ${Math.abs(remainingMonths)} month(s)!`
-          };
-        }
-      }
-
-      if (alert) {
-        alerts.push({
+    // Only add trucks that have alerts
+    if (maintenanceData.totalAlerts > 0) {
+      // Add each alert with truck info
+      maintenanceData.alerts.forEach(alert => {
+        allAlerts.push({
           ...alert,
           truck: {
-            _id: truckDoc._id,
+            _id: truckDoc._id.toString(),
             registrationNumber: truckDoc.registrationNumber,
             brand: truckDoc.brand,
             model: truckDoc.model,
@@ -129,30 +58,15 @@ export const getMyTruckAlerts = asyncHandler(async (req, res, next) => {
             status: truckDoc.status
           }
         });
-      }
+      });
     }
   }
 
-  // Sort alerts by severity
-  function sortAlertsBySeverity(alerts) {
-    const critical = [];
-    const high = [];
-    const medium = [];
 
-    for (const alert of alerts) {
-      if (alert.severity === "critical") critical.push(alert);
-      else if (alert.severity === "high") high.push(alert);
-      else if (alert.severity === "medium") medium.push(alert);
-    }
-
-    return [...critical, ...high, ...medium];
-  }
-
-  const sortedAlerts = sortAlertsBySeverity(alerts);
 
   return successResponse(res, 200, "Maintenance alerts fetched successfully", {
     hasAssignedTrip: true,
-    totalAlerts: sortedAlerts.length,
-    alerts: sortedAlerts
+    totalAlerts: allAlerts.length,
+    alerts: allAlerts
   });
 });

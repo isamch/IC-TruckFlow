@@ -38,6 +38,7 @@ router.use("/admin/maintenance-rules", maintenanceRulesRoutes);
 router.use("/admin/maintenance-alerts", maintenanceAlertsRoutes);
 
 
+
 // Driver routes
 router.use("/driver/trips", driverTripRoutes);
 router.use("/driver/fuel-logs", driverFuelLogRoutes);

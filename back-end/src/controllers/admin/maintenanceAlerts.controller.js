@@ -1,10 +1,9 @@
-import Truck from "../../models/truck.model.js";
-import MaintenanceRules from "../../models/maintenanceRules.model.js";
-import MaintenanceLog from "../../models/maintenanceLog.model.js";
+import truck from "../../models/truck.model.js";
 import asyncHandler from "../../utils/asyncHandler.js";
 import { successResponse } from "../../utils/apiResponse.js";
-import * as ApiError from "../../utils/apiError.js";
-import dayjs from "dayjs";
+import { calculateTruckMaintenanceAlerts } from "../../utils/maintenanceHelper.js";
+
+
 
 /**
  * @desc    Get trucks that need maintenance soon
@@ -12,89 +11,38 @@ import dayjs from "dayjs";
  * @access  Private/Admin
  */
 export const getMaintenanceAlerts = asyncHandler(async (req, res, next) => {
-  const alerts = [];
+  const allAlerts = [];
 
-  // get all rules
-  const rules = await MaintenanceRules.find();
+  // Get all trucks
+  const trucks = await truck.find();
 
-  // get all trucks
-  const trucks = await Truck.find();
+  // Calculate alerts for each truck using helper function
+  for (const truck of trucks) {
+    const maintenanceData = await calculateTruckMaintenanceAlerts(truck);
 
-  for (const t of trucks) {
-    for (const rule of rules) {
-      let alert = null;
-
-      // get last maintenance for this type once for each rule
-      const lastMaintenance = await MaintenanceLog.findOne({
-        truck: t._id,
-        type: rule.type
-      }).sort({ date: -1 });
-
-      // ====== km-based maintenance ======
-      if (rule.everyKm) {
-        const lastMaintenanceKm = lastMaintenance ? lastMaintenance.km : 0;
-        const kmSinceLastMaintenance = t.currentKm - lastMaintenanceKm;
-        const remainingKm = rule.everyKm - kmSinceLastMaintenance;
-
-        if (remainingKm <= 1000 && remainingKm > 0) {
-          alert = {
-            maintenanceType: rule.type,
-            alertType: 'km',
-            remainingKm,
-            message: `${t.registrationNumber} needs ${rule.type} maintenance in ${remainingKm} km`
-          };
-        } else if (remainingKm <= 0) {
-          alert = {
-            maintenanceType: rule.type,
-            alertType: 'km',
-            overdue: true,
-            overdueKm: Math.abs(remainingKm),
-            message: `${t.registrationNumber} ${rule.type} maintenance is overdue by ${Math.abs(remainingKm)} km`
-          };
-        }
-      }
-
-      // ====== time-based maintenance ======
-      if (rule.everyMonths) {
-        const lastDate = lastMaintenance ? lastMaintenance.date : t.createdAt;
-        const monthsSinceLastMaintenance = dayjs().diff(dayjs(lastDate), 'month');
-        const remainingMonths = rule.everyMonths - monthsSinceLastMaintenance;
-
-        if (remainingMonths <= 1 && remainingMonths > 0 && !alert) {
-          alert = {
-            maintenanceType: rule.type,
-            alertType: 'time',
-            remainingMonths,
-            message: `${t.registrationNumber} needs ${rule.type} maintenance in ${remainingMonths} month(s)`
-          };
-        } else if (remainingMonths <= 0 && !alert) {
-          alert = {
-            maintenanceType: rule.type,
-            alertType: 'time',
-            overdue: true,
-            overdueMonths: Math.abs(remainingMonths),
-            message: `${t.registrationNumber} ${rule.type} maintenance is overdue by ${Math.abs(remainingMonths)} month(s)`
-          };
-        }
-      }
-    }
-
-    if (alert) {
-      alerts.push({
-        ...alert,
-        truck: {
-          _id: t._id,
-          registrationNumber: t.registrationNumber,
-          brand: t.brand,
-          model: t.model,
-          currentKm: t.currentKm
-        }
+    // Only add trucks that have alerts
+    if (maintenanceData.totalAlerts > 0) {
+      // Add each alert with truck info
+      maintenanceData.alerts.forEach(alert => {
+        allAlerts.push({
+          ...alert,
+          truck: {
+            _id: truck._id.toString(),
+            registrationNumber: truck.registrationNumber,
+            brand: truck.brand,
+            model: truck.model,
+            currentKm: truck.currentKm,
+          }
+        });
       });
     }
   }
 
+
+
+
   return successResponse(res, 200, "Maintenance alerts fetched successfully", {
-    totalAlerts: alerts.length,
-    alerts
+    totalAlerts: allAlerts.length,
+    alerts: allAlerts
   });
 });
