@@ -1,5 +1,5 @@
-import truck from "../../models/truck.model.js";
-import tire from "../../models/tire.model.js";
+import Truck from "../../models/truck.model.js";
+import Tire from "../../models/tire.model.js";
 import asyncHandler from "../../utils/asyncHandler.js";
 import { successResponse } from "../../utils/apiResponse.js";
 import * as ApiError from "../../utils/apiError.js";
@@ -16,7 +16,7 @@ import { calculateTruckMaintenanceAlerts } from "../../utils/maintenanceHelper.j
 export const getAllTrucks = asyncHandler(async (req, res, next) => {
   const { page, perPage, skip } = getPagination(req.query);
 
-  const trucks = await truck.find()
+  const trucks = await Truck.find()
     .populate('tires')
     .skip(skip)
     .limit(perPage)
@@ -26,7 +26,7 @@ export const getAllTrucks = asyncHandler(async (req, res, next) => {
     return next(ApiError.notFound("Trucks not found"));
   }
 
-  const total = await truck.countDocuments();
+  const total = await Truck.countDocuments();
 
   return successResponse(res, 200, "Trucks fetched successfully", {
     trucks,
@@ -42,7 +42,7 @@ export const getAllTrucks = asyncHandler(async (req, res, next) => {
  * @access  Private/Admin
  */
 export const getTruckById = asyncHandler(async (req, res, next) => {
-  const truck = await truck.findById(req.params.id)
+  const truck = await Truck.findById(req.params.id)
     .populate('tires');
 
   if (!truck) {
@@ -66,7 +66,7 @@ export const createTruck = asyncHandler(async (req, res, next) => {
     lastGeneralCheckDate, tires
   } = req.body;
 
-  const existingTruck = await truck.findOne({ registrationNumber });
+  const existingTruck = await Truck.findOne({ registrationNumber });
 
   if (existingTruck) {
     return next(ApiError.badRequest("Truck already exists"));
@@ -75,7 +75,7 @@ export const createTruck = asyncHandler(async (req, res, next) => {
 
   // If tires are exist
   if (tires && tires.length > 0) {
-    const tiresExist = await tire.countDocuments({ _id: { $in: tires } });
+    const tiresExist = await Tire.countDocuments({ _id: { $in: tires } });
     if (tiresExist !== tires.length) {
       return next(ApiError.badRequest('One or more tire IDs are invalid'));
     }
@@ -94,7 +94,7 @@ export const createTruck = asyncHandler(async (req, res, next) => {
     tires: tires || []
   };
 
-  const newTruck = await truck.create(truckData);
+  const newTruck = await Truck.create(truckData);
 
   return successResponse(res, 201, "Truck created successfully", newTruck);
 
@@ -121,15 +121,15 @@ export const updateTruck = asyncHandler(async (req, res, next) => {
     tires
   } = req.body;
 
-  const truck = await truck.findById(req.params.id);
+  const truck = await Truck.findById(req.params.id);
 
   if (!truck) {
     return next(ApiError.notFound("Truck not found"));
   }
 
   // check if registration number is being changed and already exists
-  if (registrationNumber && registrationNumber !== truck.registrationNumber) {
-    const existingTruck = await truck.findOne({ registrationNumber });
+  if (registrationNumber && registrationNumber !== Truck.registrationNumber) {
+    const existingTruck = await Truck.findOne({ registrationNumber });
     if (existingTruck) {
       return next(ApiError.badRequest('Registration number already exists'));
     }
@@ -138,27 +138,27 @@ export const updateTruck = asyncHandler(async (req, res, next) => {
 
   // If tires are being updated, validate they exist
   if (tires && tires.length > 0) {
-    const tiresExist = await tire.countDocuments({ _id: { $in: tires } });
+    const tiresExist = await Tire.countDocuments({ _id: { $in: tires } });
     if (tiresExist !== tires.length) {
       return next(ApiError.badRequest('One or more tire IDs are invalid'));
     }
   }
 
   // Update fields
-  if (registrationNumber) truck.registrationNumber = registrationNumber;
-  if (brand !== undefined) truck.brand = brand;
-  if (model !== undefined) truck.model = model;
-  if (currentKm !== undefined) truck.currentKm = currentKm;
-  if (fuelCapacity !== undefined) truck.fuelCapacity = fuelCapacity;
-  if (status) truck.status = status;
-  if (lastOilChangeKm !== undefined) truck.lastOilChangeKm = lastOilChangeKm;
-  if (lastGeneralCheckDate !== undefined) truck.lastGeneralCheckDate = lastGeneralCheckDate;
-  if (tires !== undefined) truck.tires = tires;
+  if (registrationNumber) Truck.registrationNumber = registrationNumber;
+  if (brand !== undefined) Truck.brand = brand;
+  if (model !== undefined) Truck.model = model;
+  if (currentKm !== undefined) Truck.currentKm = currentKm;
+  if (fuelCapacity !== undefined) Truck.fuelCapacity = fuelCapacity;
+  if (status) Truck.status = status;
+  if (lastOilChangeKm !== undefined) Truck.lastOilChangeKm = lastOilChangeKm;
+  if (lastGeneralCheckDate !== undefined) Truck.lastGeneralCheckDate = lastGeneralCheckDate;
+  if (tires !== undefined) Truck.tires = tires;
 
-  await truck.save();
+  await Truck.save();
 
   // get updated truck with populated tires
-  await truck.populate('tires');
+  await Truck.populate('tires');
 
   return successResponse(res, 200, "Truck updated successfully", truck);
 });
@@ -171,7 +171,7 @@ export const updateTruck = asyncHandler(async (req, res, next) => {
  * @access  Private/Admin
  */
 export const deleteTruck = asyncHandler(async (req, res, next) => {
-  const truck = await truck.findByIdAndDelete(req.params.id);
+  const truck = await Truck.findByIdAndDelete(req.params.id);
 
   if (!truck) {
     return next(ApiError.notFound("Truck not found"));
@@ -191,7 +191,7 @@ export const deleteTruck = asyncHandler(async (req, res, next) => {
 export const updateTruckStatus = asyncHandler(async (req, res, next) => {
   const { status } = req.body;
 
-  const truck = await truck.findById(req.params.id);
+  const truck = await Truck.findById(req.params.id);
 
   if (!truck) {
     return next(ApiError.notFound("Truck not found"));
@@ -201,8 +201,8 @@ export const updateTruckStatus = asyncHandler(async (req, res, next) => {
     return next(ApiError.badRequest('Invalid status'));
   }
 
-  truck.status = status;
-  await truck.save();
+  Truck.status = status;
+  await Truck.save();
 
   return successResponse(res, 200, "Truck status updated successfully", truck);
 });
@@ -219,25 +219,25 @@ export const updateTruckStatus = asyncHandler(async (req, res, next) => {
 export const addTireToTruck = asyncHandler(async (req, res, next) => {
   const { tireId } = req.body;
 
-  const truck = await truck.findById(req.params.id);
+  const truck = await Truck.findById(req.params.id);
 
   if (!truck) {
     return next(ApiError.notFound("Truck not found"));
   }
 
-  const tire = await tire.findById(tireId);
+  const tire = await Tire.findById(tireId);
   if (!tire) {
     return next(ApiError.notFound('Tire not found'));
   }
 
-  if (truck.tires.includes(tireId)) {
+  if (Truck.tires.includes(tireId)) {
     return next(ApiError.badRequest('Tire already added to this truck'));
   }
 
-  truck.tires.push(tireId);
-  await truck.save();
+  Truck.tires.push(tireId);
+  await Truck.save();
 
-  await truck.populate('tires');
+  await Truck.populate('tires');
 
   return successResponse(res, 200, "Tire added to truck successfully", truck);
 });
@@ -253,20 +253,20 @@ export const addTireToTruck = asyncHandler(async (req, res, next) => {
 export const removeTireFromTruck = asyncHandler(async (req, res, next) => {
   const { tireId } = req.body;
 
-  const truck = await truck.findById(req.params.id);
+  const truck = await Truck.findById(req.params.id);
 
   if (!truck) {
     return next(ApiError.notFound("Truck not found"));
   }
 
-  if (!truck.tires.includes(tireId)) {
+  if (!Truck.tires.includes(tireId)) {
     return next(ApiError.badRequest('Tire not found in this truck'));
   }
 
-  truck.tires = truck.tires.filter(tire => tire.toString() !== tireId);
-  await truck.save();
+  Truck.tires = Truck.tires.filter(tire => Tire.toString() !== tireId);
+  await Truck.save();
 
-  await truck.populate('tires');
+  await Truck.populate('tires');
 
   return successResponse(res, 200, "Tire removed from truck successfully", truck);
 });
@@ -281,7 +281,7 @@ export const removeTireFromTruck = asyncHandler(async (req, res, next) => {
  */
 export const getTruckMaintenanceStatus = asyncHandler(async (req, res, next) => {
   // Find truck
-  const truck = await truck.findById(req.params.id);
+  const truck = await Truck.findById(req.params.id);
 
   if (!truck) {
     return next(ApiError.notFound("Truck not found"));
@@ -292,12 +292,12 @@ export const getTruckMaintenanceStatus = asyncHandler(async (req, res, next) => 
 
   return successResponse(res, 200, "Truck maintenance status fetched successfully", {
     truck: {
-      _id: truck._id,
-      registrationNumber: truck.registrationNumber,
-      brand: truck.brand,
-      model: truck.model,
-      currentKm: truck.currentKm,
-      status: truck.status
+      _id: Truck._id,
+      registrationNumber: Truck.registrationNumber,
+      brand: Truck.brand,
+      model: Truck.model,
+      currentKm: Truck.currentKm,
+      status: Truck.status
     },
     maintenance: {
       totalAlerts: maintenanceData.totalAlerts,

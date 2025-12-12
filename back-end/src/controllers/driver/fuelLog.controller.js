@@ -1,5 +1,5 @@
-import fuelLog from "../../models/fuelLog.model.js";
-import trip from "../../models/trip.model.js";
+import FuelLog from "../../models/fuelLog.model.js";
+import Trip from "../../models/trip.model.js";
 import asyncHandler from "../../utils/asyncHandler.js";
 import { successResponse } from "../../utils/apiResponse.js";
 import * as ApiError from "../../utils/apiError.js";
@@ -16,11 +16,11 @@ export const getMyFuelLogs = asyncHandler(async (req, res, next) => {
   const { page, perPage, skip } = getPagination(req.query);
 
   // Get trips for this driver
-  const myTrips = await trip.find({ driver: req.user.id }).select('_id');
-  const tripIds = myTrips.map(trip => trip._id);
+  const myTrips = await Trip.find({ driver: req.User.id }).select('_id');
+  const tripIds = myTrips.map(trip => Trip._id);
 
 
-  const fuelLogs = await fuelLog.find({ trip: { $in: tripIds } })
+  const fuelLogs = await FuelLog.find({ trip: { $in: tripIds } })
     .populate({
       path: 'trip',
       populate: { path: 'truck', select: 'registrationNumber brand model' }
@@ -29,7 +29,7 @@ export const getMyFuelLogs = asyncHandler(async (req, res, next) => {
     .limit(perPage)
     .sort({ createdAt: -1 });
 
-  const total = await fuelLog.countDocuments({ trip: { $in: tripIds } });
+  const total = await FuelLog.countDocuments({ trip: { $in: tripIds } });
 
   return successResponse(res, 200, "Fuel logs fetched successfully", {
     fuelLogs,
@@ -46,7 +46,7 @@ export const getMyFuelLogs = asyncHandler(async (req, res, next) => {
  * @access  Private/Driver
  */
 export const getMyFuelLogById = asyncHandler(async (req, res, next) => {
-  const fuelLog = await fuelLog.findById(req.params.id)
+  const fuelLog = await FuelLog.findById(req.params.id)
     .populate({
       path: 'trip',
       populate: { path: 'truck', select: 'registrationNumber brand model' }
@@ -57,8 +57,8 @@ export const getMyFuelLogById = asyncHandler(async (req, res, next) => {
   }
 
   // Check if this fuel log belongs to driver's trip
-  const trip = await trip.findById(fuelLog.trip._id);
-  if (trip.driver.toString() !== req.user.id) {
+  const trip = await Trip.findById(FuelLog.Trip._id);
+  if (Trip.driver.toString() !== req.User.id) {
     return next(ApiError.forbidden("You don't have access to this fuel log"));
   }
 
@@ -76,9 +76,9 @@ export const addFuelLog = asyncHandler(async (req, res, next) => {
   const { trip, liters, pricePerLiter, stationName, timestamp } = req.body;
 
   // Validate trip exists and belongs to driver
-  const tripExists = await trip.findOne({
+  const tripExists = await Trip.findOne({
     _id: trip,
-    driver: req.user.id
+    driver: req.User.id
   });
 
   if (!tripExists) {
@@ -103,10 +103,10 @@ export const addFuelLog = asyncHandler(async (req, res, next) => {
     fuelLogData.totalCost = liters * pricePerLiter;
   }
 
-  const newFuelLog = await fuelLog.create(fuelLogData);
+  const newFuelLog = await FuelLog.create(fuelLogData);
 
   // Add fuel log to trip's fuelLogs array
-  await trip.findByIdAndUpdate(trip, {
+  await Trip.findByIdAndUpdate(trip, {
     $push: { fuelLogs: newFuelLog._id }
   });
 

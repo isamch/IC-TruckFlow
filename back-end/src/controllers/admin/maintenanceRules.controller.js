@@ -1,4 +1,4 @@
-import maintenanceRules from "../../models/maintenanceRules.model.js";
+import MaintenanceRules from "../../models/maintenanceRules.model.js";
 import asyncHandler from "../../utils/asyncHandler.js";
 import { successResponse } from "../../utils/apiResponse.js";
 import * as ApiError from "../../utils/apiError.js";
@@ -13,7 +13,7 @@ import { getPagination } from "../../utils/pagination.js";
 export const getAllMaintenanceRules = asyncHandler(async (req, res, next) => {
   const { page, perPage, skip } = getPagination(req.query);
 
-  const maintenanceRules = await maintenanceRules.find()
+  const maintenanceRules = await MaintenanceRules.find()
     .skip(skip)
     .limit(perPage)
     .sort({ createdAt: -1 });
@@ -22,7 +22,7 @@ export const getAllMaintenanceRules = asyncHandler(async (req, res, next) => {
     return next(ApiError.notFound("Maintenance rules not found"));
   }
 
-  const total = await maintenanceRules.countDocuments();
+  const total = await MaintenanceRules.countDocuments();
 
   return successResponse(res, 200, "Maintenance rules fetched successfully", {
     maintenanceRules,
@@ -37,7 +37,7 @@ export const getAllMaintenanceRules = asyncHandler(async (req, res, next) => {
  * @access  Private/Admin
  */
 export const getMaintenanceRuleById = asyncHandler(async (req, res, next) => {
-  const maintenanceRule = await maintenanceRules.findById(req.params.id);
+  const maintenanceRule = await MaintenanceRules.findById(req.params.id);
 
   if (!maintenanceRule) {
     return next(ApiError.notFound("Maintenance rule not found"));
@@ -57,7 +57,7 @@ export const createMaintenanceRule = asyncHandler(async (req, res, next) => {
   const { type, everyKm, everyMonths } = req.body;
 
   // Check if rule for this type already exists
-  const existingRule = await maintenanceRules.findOne({ type });
+  const existingRule = await MaintenanceRules.findOne({ type });
   if (existingRule) {
     return next(ApiError.badRequest(`Maintenance rule for type '${type}' already exists`));
   }
@@ -68,7 +68,7 @@ export const createMaintenanceRule = asyncHandler(async (req, res, next) => {
     everyMonths
   };
 
-  const newMaintenanceRule = await maintenanceRules.create(maintenanceRuleData);
+  const newMaintenanceRule = await MaintenanceRules.create(maintenanceRuleData);
 
   return successResponse(res, 201, "Maintenance rule created successfully", newMaintenanceRule);
 });
@@ -84,7 +84,7 @@ export const createMaintenanceRule = asyncHandler(async (req, res, next) => {
 export const updateMaintenanceRule = asyncHandler(async (req, res, next) => {
   const { type, everyKm, everyMonths } = req.body;
 
-  const maintenanceRule = await maintenanceRules.findById(req.params.id);
+  const maintenanceRule = await MaintenanceRules.findById(req.params.id);
 
   if (!maintenanceRule) {
     return next(ApiError.notFound("Maintenance rule not found"));
@@ -92,7 +92,7 @@ export const updateMaintenanceRule = asyncHandler(async (req, res, next) => {
 
   // Check if type is being changed and already exists
   if (type && type !== maintenanceRule.type) {
-    const existingRule = await maintenanceRules.findOne({ type });
+    const existingRule = await MaintenanceRules.findOne({ type });
     if (existingRule) {
       return next(ApiError.badRequest(`Maintenance rule for type '${type}' already exists`));
     }
@@ -115,7 +115,7 @@ export const updateMaintenanceRule = asyncHandler(async (req, res, next) => {
  * @access  Private/Admin
  */
 export const deleteMaintenanceRule = asyncHandler(async (req, res, next) => {
-  const maintenanceRule = await maintenanceRules.findByIdAndDelete(req.params.id);
+  const maintenanceRule = await MaintenanceRules.findByIdAndDelete(req.params.id);
 
   if (!maintenanceRule) {
     return next(ApiError.notFound("Maintenance rule not found"));

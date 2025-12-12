@@ -1,5 +1,5 @@
-import tire from "../../models/tire.model.js";
-import truck from "../../models/truck.model.js";
+import Tire from "../../models/Tire.model.js";
+import Truck from "../../models/Truck.model.js";
 import asyncHandler from "../../utils/asyncHandler.js";
 import { successResponse } from "../../utils/apiResponse.js";
 import * as ApiError from "../../utils/apiError.js";
@@ -15,7 +15,7 @@ import { getPagination } from "../../utils/pagination.js";
 export const getAllTires = asyncHandler(async (req, res, next) => {
   const { page, perPage, skip } = getPagination(req.query);
 
-  const tires = await tire.find()
+  const tires = await Tire.find()
     .populate('truck', 'registrationNumber brand model')
     .skip(skip)
     .limit(perPage)
@@ -25,7 +25,7 @@ export const getAllTires = asyncHandler(async (req, res, next) => {
     return next(ApiError.notFound("Tires not found"));
   }
 
-  const total = await tire.countDocuments();
+  const total = await Tire.countDocuments();
 
   return successResponse(res, 200, "Tires fetched successfully", {
     tires,
@@ -41,7 +41,7 @@ export const getAllTires = asyncHandler(async (req, res, next) => {
  * @access  Private/Admin
  */
 export const getTireById = asyncHandler(async (req, res, next) => {
-  const tire = await tire.findById(req.params.id)
+  const tire = await Tire.findById(req.params.id)
     .populate('truck', 'registrationNumber brand model');
 
   if (!tire) {
@@ -64,7 +64,7 @@ export const createTire = asyncHandler(async (req, res, next) => {
 
   // If truck is provided, validate it exists
   if (truck) {
-    const truckExists = await truck.findById(truck);
+    const truckExists = await Truck.findById(truck);
     if (!truckExists) {
       return next(ApiError.notFound('Truck not found'));
     }
@@ -78,19 +78,19 @@ export const createTire = asyncHandler(async (req, res, next) => {
     truck: truck || null
   };
 
-  const newTire = await tire.create(tireData);
+  const newTire = await Tire.create(tireData);
 
   // If truck is assigned, add tire to truck's tires array
   if (truck) {
-    const truck = await truck.findById(truck);
+    const truck = await Truck.findById(truck);
     if (!truck) {
       return next(ApiError.notFound("Truck not found"));
     }
 
-    if (!truck.tires.includes(newTire._id)) {
-      truck.tires.push(newTire._id);
+    if (!Truck.tires.includes(newTire._id)) {
+      Truck.tires.push(newTire._id);
     }
-    await truck.save();
+    await Truck.save();
 
   }
 
@@ -111,7 +111,7 @@ export const createTire = asyncHandler(async (req, res, next) => {
 export const updateTire = asyncHandler(async (req, res, next) => {
   const { position, installKm, currentKm, condition, truck } = req.body;
 
-  const tire = await tire.findById(req.params.id);
+  const tire = await Tire.findById(req.params.id);
 
   if (!tire) {
     return next(ApiError.notFound("Tire not found"));
@@ -119,36 +119,36 @@ export const updateTire = asyncHandler(async (req, res, next) => {
 
   // If truck is being changed, validate it exists
   if (truck !== undefined && truck !== null) {
-    const truckExists = await truck.findById(truck);
+    const truckExists = await Truck.findById(truck);
     if (!truckExists) {
       return next(ApiError.notFound('Truck not found'));
     }
 
     // Remove tire from old truck if exists
-    if (tire.truck) {
-      const oldTruck = await truck.findById(tire.truck);
-      oldTruck.tires = oldTruck.tires.filter(id => id.toString() !== tire._id.toString());
+    if (Tire.truck) {
+      const oldTruck = await Truck.findById(Tire.truck);
+      oldTruck.tires = oldTruck.tires.filter(id => id.toString() !== Tire._id.toString());
       await oldTruck.save();
     }
 
     // add tire to new truck
-    if (!truck.tires.includes(tire._id)) {
-      truck.tires.push(tire._id);
-      await truck.save();
+    if (!Truck.tires.includes(Tire._id)) {
+      Truck.tires.push(Tire._id);
+      await Truck.save();
     }
   }
 
   // Update fields
-  if (position) tire.position = position;
-  if (installKm !== undefined) tire.installKm = installKm;
-  if (currentKm !== undefined) tire.currentKm = currentKm;
-  if (condition) tire.condition = condition;
-  if (truck !== undefined) tire.truck = truck;
+  if (position) Tire.position = position;
+  if (installKm !== undefined) Tire.installKm = installKm;
+  if (currentKm !== undefined) Tire.currentKm = currentKm;
+  if (condition) Tire.condition = condition;
+  if (truck !== undefined) Tire.truck = truck;
 
-  await tire.save();
+  await Tire.save();
 
   // Populate truck info
-  await tire.populate('truck', 'registrationNumber brand model');
+  await Tire.populate('truck', 'registrationNumber brand model');
 
   return successResponse(res, 200, "Tire updated successfully", tire);
 });
@@ -161,20 +161,20 @@ export const updateTire = asyncHandler(async (req, res, next) => {
  * @access  Private/Admin
  */
 export const deleteTire = asyncHandler(async (req, res, next) => {
-  const tire = await tire.findById(req.params.id);
+  const tire = await Tire.findById(req.params.id);
 
   if (!tire) {
     return next(ApiError.notFound("Tire not found"));
   }
 
   // Remove tire from truck if assigned
-  if (tire.truck) {
-    const truck = await truck.findById(tire.truck);
-    truck.tires = truck.tires.filter((id) => id.toString() !== tire._id.toString());
-    await truck.save();
+  if (Tire.truck) {
+    const truck = await Truck.findById(Tire.truck);
+    Truck.tires = Truck.tires.filter((id) => id.toString() !== Tire._id.toString());
+    await Truck.save();
   }
 
-  await tire.deleteOne();
+  await Tire.deleteOne();
 
   return successResponse(res, 200, "Tire deleted successfully");
 });
@@ -190,16 +190,16 @@ export const deleteTire = asyncHandler(async (req, res, next) => {
 export const changeTirePosition = asyncHandler(async (req, res, next) => {
   const { position } = req.body;
 
-  const tire = await tire.findById(req.params.id);
+  const tire = await Tire.findById(req.params.id);
 
   if (!tire) {
     return next(ApiError.notFound("Tire not found"));
   }
 
-  tire.position = position;
-  await tire.save();
+  Tire.position = position;
+  await Tire.save();
 
-  await tire.populate('truck', 'registrationNumber brand model');
+  await Tire.populate('truck', 'registrationNumber brand model');
 
   return successResponse(res, 200, "Tire position changed successfully", tire);
 });
@@ -215,7 +215,7 @@ export const changeTirePosition = asyncHandler(async (req, res, next) => {
 export const updateTireCondition = asyncHandler(async (req, res, next) => {
   const { condition } = req.body;
 
-  const tire = await tire.findById(req.params.id);
+  const tire = await Tire.findById(req.params.id);
 
   if (!tire) {
     return next(ApiError.notFound("Tire not found"));
@@ -225,10 +225,10 @@ export const updateTireCondition = asyncHandler(async (req, res, next) => {
     return next(ApiError.badRequest('Invalid condition'));
   }
 
-  tire.condition = condition;
-  await tire.save();
+  Tire.condition = condition;
+  await Tire.save();
 
-  await tire.populate('truck', 'registrationNumber brand model');
+  await Tire.populate('truck', 'registrationNumber brand model');
 
   return successResponse(res, 200, "Tire condition updated successfully", tire);
 });
@@ -244,7 +244,7 @@ export const updateTireCondition = asyncHandler(async (req, res, next) => {
 export const assignTireToTruck = asyncHandler(async (req, res, next) => {
   const { truckId } = req.body;
 
-  const tire = await tire.findById(req.params.id);
+  const tire = await Tire.findById(req.params.id);
 
   if (!tire) {
     return next(ApiError.notFound("Tire not found"));
@@ -253,42 +253,42 @@ export const assignTireToTruck = asyncHandler(async (req, res, next) => {
   // If truckId is null, unassign tire
   if (truckId === null) {
     // Remove tire from old truck if exists
-    if (tire.truck) {
-      const oldTruck = await truck.findById(tire.truck);
-      oldTruck.tires = oldTruck.tires.filter(id => id.toString() !== tire._id.toString());
+    if (Tire.truck) {
+      const oldTruck = await Truck.findById(Tire.truck);
+      oldTruck.tires = oldTruck.tires.filter(id => id.toString() !== Tire._id.toString());
       await oldTruck.save();
     }
 
     // remove truck from tire
-    tire.truck = null;
-    await tire.save();
+    Tire.truck = null;
+    await Tire.save();
 
     return successResponse(res, 200, "Tire unassigned successfully", tire);
   }
 
   // Check if truck exists
-  const truck = await truck.findById(truckId);
+  const truck = await Truck.findById(truckId);
   if (!truck) {
     return next(ApiError.notFound('Truck not found'));
   }
 
   // Remove tire from old truck if exists
-  if (tire.truck) {
-    const oldTruck = await truck.findById(tire.truck);
-    oldTruck.tires = oldTruck.tires.filter(id => id.toString() !== tire._id.toString());
+  if (Tire.truck) {
+    const oldTruck = await Truck.findById(Tire.truck);
+    oldTruck.tires = oldTruck.tires.filter(id => id.toString() !== Tire._id.toString());
     await oldTruck.save();
   }
 
   // Add tire to new truck
-  const newTruck = await truck.findById(truckId);
-  newTruck.tires.push(tire._id);
+  const newTruck = await Truck.findById(truckId);
+  newTruck.tires.push(Tire._id);
   await newTruck.save();
 
   // add truck to tire
-  tire.truck = truckId;
-  await tire.save();
+  Tire.truck = truckId;
+  await Tire.save();
 
-  await tire.populate('truck', 'registrationNumber brand model');
+  await Tire.populate('truck', 'registrationNumber brand model');
 
   return successResponse(res, 200, "Tire assigned to truck successfully", tire);
 });

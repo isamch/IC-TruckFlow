@@ -1,6 +1,6 @@
-import trip from "../../models/trip.model.js";
-import truck from "../../models/truck.model.js";
-import trailer from "../../models/trailer.model.js";
+import Trip from "../../models/trip.model.js";
+import Truck from "../../models/truck.model.js";
+import Trailer from "../../models/trailer.model.js";
 import asyncHandler from "../../utils/asyncHandler.js";
 import { successResponse } from "../../utils/apiResponse.js";
 import * as ApiError from "../../utils/apiError.js";
@@ -16,14 +16,14 @@ import { getPagination } from "../../utils/pagination.js";
 export const getMyTrips = asyncHandler(async (req, res, next) => {
   const { page, perPage, skip } = getPagination(req.query);
 
-  const trips = await trip.find({ driver: req.user.id })
+  const trips = await Trip.find({ driver: req.User.id })
     .populate('truck', 'registrationNumber brand model')
     .populate('trailer', 'serialNumber type')
     .skip(skip)
     .limit(perPage)
     .sort({ createdAt: -1 });
 
-  const total = await trip.countDocuments({ driver: req.user.id });
+  const total = await Trip.countDocuments({ driver: req.User.id });
 
   return successResponse(res, 200, "Trips fetched successfully", {
     trips,
@@ -39,9 +39,9 @@ export const getMyTrips = asyncHandler(async (req, res, next) => {
  * @access  Private/Driver
  */
 export const getMyTripById = asyncHandler(async (req, res, next) => {
-  const trip = await trip.findOne({
+  const trip = await Trip.findOne({
     _id: req.params.id,
-    driver: req.user.id
+    driver: req.User.id
   })
     .populate('truck', 'registrationNumber brand model currentKm')
     .populate('trailer', 'serialNumber type maxLoadKg')
@@ -65,30 +65,30 @@ export const getMyTripById = asyncHandler(async (req, res, next) => {
 export const startTrip = asyncHandler(async (req, res, next) => {
   const { startKm } = req.body;
 
-  const trip = await trip.findOne({
+  const trip = await Trip.findOne({
     _id: req.params.id,
-    driver: req.user.id
+    driver: req.User.id
   });
 
   if (!trip) {
     return next(ApiError.notFound("Trip not found"));
   }
 
-  if (trip.status !== 'to_do') {
+  if (Trip.status !== 'to_do') {
     return next(ApiError.badRequest('Trip already started or finished'));
   }
 
-  trip.status = 'in_progress';
-  trip.startKm = startKm;
-  await trip.save();
+  Trip.status = 'in_progress';
+  Trip.startKm = startKm;
+  await Trip.save();
 
   // Update truck and trailer status
-  await truck.findByIdAndUpdate(trip.truck, { status: 'on_trip' });
-  if (trip.trailer) {
-    await trailer.findByIdAndUpdate(trip.trailer, { status: 'on_trip' });
+  await Truck.findByIdAndUpdate(Trip.truck, { status: 'on_trip' });
+  if (Trip.trailer) {
+    await Trailer.findByIdAndUpdate(Trip.trailer, { status: 'on_trip' });
   }
 
-  await trip.populate('truck trailer');
+  await Trip.populate('truck trailer');
 
   return successResponse(res, 200, "Trip started successfully", trip);
 });
@@ -106,50 +106,50 @@ export const startTrip = asyncHandler(async (req, res, next) => {
 export const finishTrip = asyncHandler(async (req, res, next) => {
   const { endKm, fuelUsed, notes } = req.body;
 
-  const trip = await trip.findOne({
+  const trip = await Trip.findOne({
     _id: req.params.id,
-    driver: req.user.id,
+    driver: req.User.id,
   });
 
   if (!trip) {
     return next(ApiError.notFound("Trip not found"));
   }
 
-  if (trip.status !== 'in_progress') {
+  if (Trip.status !== 'in_progress') {
     return next(ApiError.badRequest('Trip is not in progress'));
   }
 
-  if (endKm <= trip.startKm) {
+  if (endKm <= Trip.startKm) {
     return next(ApiError.badRequest('End km must be greater than start km'));
   }
 
-  trip.status = 'finished';
-  trip.endKm = endKm;
-  trip.totalDistance = endKm - trip.startKm;
-  if (fuelUsed) trip.fuelUsed = fuelUsed;
+  Trip.status = 'finished';
+  Trip.endKm = endKm;
+  Trip.totalDistance = endKm - Trip.startKm;
+  if (fuelUsed) Trip.fuelUsed = fuelUsed;
 
   if (notes) {
-    const driverName = trip.driver ? trip.driver.name : "Driver";
-    if (trip.notes) {
-      trip.notes = trip.notes + " . driver : " + driverName + " : " + notes;
+    const driverName = Trip.driver ? Trip.driver.name : "Driver";
+    if (Trip.notes) {
+      Trip.notes = Trip.notes + " . driver : " + driverName + " : " + notes;
     } else {
-      trip.notes = "driver : " + driverName + " : " + notes;
+      Trip.notes = "driver : " + driverName + " : " + notes;
     }
   }
 
-  await trip.save();
+  await Trip.save();
 
   // Update truck and trailer status
-  await truck.findByIdAndUpdate(trip.truck, {
+  await Truck.findByIdAndUpdate(Trip.truck, {
     status: 'available',
     currentKm: endKm
   });
 
-  if (trip.trailer) {
-    await trailer.findByIdAndUpdate(trip.trailer, { status: 'available' });
+  if (Trip.trailer) {
+    await Trailer.findByIdAndUpdate(Trip.trailer, { status: 'available' });
   }
 
-  await trip.populate('truck trailer');
+  await Trip.populate('truck trailer');
 
   return successResponse(res, 200, "Trip finished successfully", trip);
 });
@@ -165,17 +165,17 @@ export const finishTrip = asyncHandler(async (req, res, next) => {
 export const updateTripNotes = asyncHandler(async (req, res, next) => {
   const { notes } = req.body;
 
-  const trip = await trip.findOne({
+  const trip = await Trip.findOne({
     _id: req.params.id,
-    driver: req.user.id
+    driver: req.User.id
   });
 
   if (!trip) {
     return next(ApiError.notFound("Trip not found"));
   }
 
-  trip.notes = notes;
-  await trip.save();
+  Trip.notes = notes;
+  await Trip.save();
 
   return successResponse(res, 200, "Trip notes updated successfully", trip);
 });

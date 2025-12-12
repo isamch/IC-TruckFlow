@@ -1,4 +1,4 @@
-import trip from "../../models/trip.model.js";
+import Trip from "../../models/trip.model.js";
 import asyncHandler from "../../utils/asyncHandler.js";
 import { successResponse } from "../../utils/apiResponse.js";
 import { calculateTruckMaintenanceAlerts } from "../../utils/maintenanceHelper.js";
@@ -11,8 +11,8 @@ import { calculateTruckMaintenanceAlerts } from "../../utils/maintenanceHelper.j
  */
 export const getMyTruckAlerts = asyncHandler(async (req, res, next) => {
   // Get driver's assigned trips (to_do or in_progress)
-  const assignedTrips = await trip.find({
-    driver: req.user.id,
+  const assignedTrips = await Trip.find({
+    driver: req.User.id,
     status: { $in: ['to_do', 'in_progress'] }
   })
     .populate('truck')
@@ -29,7 +29,7 @@ export const getMyTruckAlerts = asyncHandler(async (req, res, next) => {
   function getUniqueTrucks(trips) {
     const uniqueTrucks = {};
     trips.forEach(trip => {
-      uniqueTrucks[trip.truck._id] = trip.truck;
+      uniqueTrucks[Trip.Truck._id] = Trip.truck;
     });
     return Object.values(uniqueTrucks);
   }

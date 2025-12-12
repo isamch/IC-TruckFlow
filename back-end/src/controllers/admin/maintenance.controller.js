@@ -1,6 +1,6 @@
-import maintenanceLog from "../../models/maintenanceLog.model.js";
-import truck from "../../models/truck.model.js";
-import trip from "../../models/trip.model.js";
+import MaintenanceLog from "../../models/maintenanceLog.model.js";
+import Truck from "../../models/truck.model.js";
+import Trip from "../../models/trip.model.js";
 import asyncHandler from "../../utils/asyncHandler.js";
 import { successResponse } from "../../utils/apiResponse.js";
 import * as ApiError from "../../utils/apiError.js";
@@ -16,7 +16,7 @@ import { getPagination } from "../../utils/pagination.js";
 export const getAllMaintenanceLogs = asyncHandler(async (req, res, next) => {
   const { page, perPage, skip } = getPagination(req.query);
 
-  const maintenanceLogs = await maintenanceLog.find()
+  const maintenanceLogs = await MaintenanceLog.find()
     .populate('truck', 'registrationNumber brand model')
     .populate({
       path: 'trip',
@@ -30,7 +30,7 @@ export const getAllMaintenanceLogs = asyncHandler(async (req, res, next) => {
     return next(ApiError.notFound("Maintenance logs not found"));
   }
 
-  const total = await maintenanceLog.countDocuments();
+  const total = await MaintenanceLog.countDocuments();
 
   return successResponse(res, 200, "Maintenance logs fetched successfully", {
     maintenanceLogs,
@@ -46,7 +46,7 @@ export const getAllMaintenanceLogs = asyncHandler(async (req, res, next) => {
  * @access  Private/Admin
  */
 export const getMaintenanceLogById = asyncHandler(async (req, res, next) => {
-  const maintenanceLog = await maintenanceLog.findById(req.params.id)
+  const maintenanceLog = await MaintenanceLog.findById(req.params.id)
     .populate('truck', 'registrationNumber brand model currentKm')
     .populate({
       path: 'trip',
@@ -71,14 +71,14 @@ export const createMaintenanceLog = asyncHandler(async (req, res, next) => {
   const { truck, trip, type, description, cost, date } = req.body;
 
   // Validate truck exists
-  const truckExists = await truck.findById(truck);
+  const truckExists = await Truck.findById(truck);
   if (!truckExists) {
     return next(ApiError.notFound('Truck not found'));
   }
 
   // Validate trip if provided
   if (trip) {
-    const tripExists = await trip.findById(trip);
+    const tripExists = await Trip.findById(trip);
     if (!tripExists) {
       return next(ApiError.notFound('Trip not found'));
     }
@@ -93,11 +93,11 @@ export const createMaintenanceLog = asyncHandler(async (req, res, next) => {
     date: date || Date.now()
   };
 
-  const newMaintenanceLog = await maintenanceLog.create(maintenanceLogData);
+  const newMaintenanceLog = await MaintenanceLog.create(maintenanceLogData);
 
   // Add maintenance log to trip's maintenanceLogs array if trip is provided
   if (trip) {
-    await trip.findByIdAndUpdate(trip, {
+    await Trip.findByIdAndUpdate(trip, {
       $push: { maintenanceLogs: newMaintenanceLog._id }
     });
   }
@@ -118,55 +118,55 @@ export const createMaintenanceLog = asyncHandler(async (req, res, next) => {
 export const updateMaintenanceLog = asyncHandler(async (req, res, next) => {
   const { truck, trip, type, description, cost, date } = req.body;
 
-  const maintenanceLog = await maintenanceLog.findById(req.params.id);
+  const maintenanceLog = await MaintenanceLog.findById(req.params.id);
 
   if (!maintenanceLog) {
     return next(ApiError.notFound("Maintenance log not found"));
   }
 
   // Validate truck if being changed
-  if (truck && truck !== maintenanceLog.truck.toString()) {
-    const truckExists = await truck.findById(truck);
+  if (truck && truck !== MaintenanceLog.Truck.toString()) {
+    const truckExists = await Truck.findById(truck);
     if (!truckExists) {
       return next(ApiError.notFound('Truck not found'));
     }
   }
 
   // Validate trip if being changed
-  if (trip !== undefined && trip !== maintenanceLog.trip?.toString()) {
+  if (trip !== undefined && trip !== MaintenanceLog.trip?.toString()) {
     if (trip !== null) {
-      const tripExists = await trip.findById(trip);
+      const tripExists = await Trip.findById(trip);
       if (!tripExists) {
         return next(ApiError.notFound('Trip not found'));
       }
     }
 
     // Remove from old trip if exists
-    if (maintenanceLog.trip) {
-      await trip.findByIdAndUpdate(maintenanceLog.trip, {
-        $pull: { maintenanceLogs: maintenanceLog._id }
+    if (MaintenanceLog.trip) {
+      await Trip.findByIdAndUpdate(MaintenanceLog.trip, {
+        $pull: { maintenanceLogs: MaintenanceLog._id }
       });
     }
 
     // Add to new trip if provided
     if (trip) {
-      await trip.findByIdAndUpdate(trip, {
-        $push: { maintenanceLogs: maintenanceLog._id }
+      await Trip.findByIdAndUpdate(trip, {
+        $push: { maintenanceLogs: MaintenanceLog._id }
       });
     }
   }
 
   // Update fields
-  if (truck) maintenanceLog.truck = truck;
-  if (trip !== undefined) maintenanceLog.trip = trip;
-  if (type) maintenanceLog.type = type;
-  if (description !== undefined) maintenanceLog.description = description;
-  if (cost !== undefined) maintenanceLog.cost = cost;
-  if (date) maintenanceLog.date = date;
+  if (truck) MaintenanceLog.truck = truck;
+  if (trip !== undefined) MaintenanceLog.trip = trip;
+  if (type) MaintenanceLog.type = type;
+  if (description !== undefined) MaintenanceLog.description = description;
+  if (cost !== undefined) MaintenanceLog.cost = cost;
+  if (date) MaintenanceLog.date = date;
 
-  await maintenanceLog.save();
+  await MaintenanceLog.save();
 
-  await maintenanceLog.populate('truck trip');
+  await MaintenanceLog.populate('truck trip');
 
   return successResponse(res, 200, "Maintenance log updated successfully", maintenanceLog);
 });
@@ -181,20 +181,20 @@ export const updateMaintenanceLog = asyncHandler(async (req, res, next) => {
  * @access  Private/Admin
  */
 export const deleteMaintenanceLog = asyncHandler(async (req, res, next) => {
-  const maintenanceLog = await maintenanceLog.findById(req.params.id);
+  const maintenanceLog = await MaintenanceLog.findById(req.params.id);
 
   if (!maintenanceLog) {
     return next(ApiError.notFound("Maintenance log not found"));
   }
 
   // Remove from trip's maintenanceLogs array if exists
-  if (maintenanceLog.trip) {
-    await trip.findByIdAndUpdate(maintenanceLog.trip, {
-      $pull: { maintenanceLogs: maintenanceLog._id }
+  if (MaintenanceLog.trip) {
+    await Trip.findByIdAndUpdate(MaintenanceLog.trip, {
+      $pull: { maintenanceLogs: MaintenanceLog._id }
     });
   }
 
-  await maintenanceLog.deleteOne();
+  await MaintenanceLog.deleteOne();
 
   return successResponse(res, 200, "Maintenance log deleted successfully");
 });

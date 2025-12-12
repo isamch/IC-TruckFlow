@@ -1,4 +1,4 @@
-import truck from "../../models/truck.model.js";
+import Truck from "../../models/truck.model.js";
 import asyncHandler from "../../utils/asyncHandler.js";
 import { successResponse } from "../../utils/apiResponse.js";
 import { calculateTruckMaintenanceAlerts } from "../../utils/maintenanceHelper.js";
@@ -14,7 +14,7 @@ export const getMaintenanceAlerts = asyncHandler(async (req, res, next) => {
   const allAlerts = [];
 
   // Get all trucks
-  const trucks = await truck.find();
+  const trucks = await Truck.find();
 
   // Calculate alerts for each truck using helper function
   for (const truck of trucks) {
@@ -27,11 +27,11 @@ export const getMaintenanceAlerts = asyncHandler(async (req, res, next) => {
         allAlerts.push({
           ...alert,
           truck: {
-            _id: truck._id.toString(),
-            registrationNumber: truck.registrationNumber,
-            brand: truck.brand,
-            model: truck.model,
-            currentKm: truck.currentKm,
+            _id: Truck._id.toString(),
+            registrationNumber: Truck.registrationNumber,
+            brand: Truck.brand,
+            model: Truck.model,
+            currentKm: Truck.currentKm,
           }
         });
       });

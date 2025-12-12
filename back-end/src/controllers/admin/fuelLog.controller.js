@@ -1,5 +1,5 @@
-import fuelLog from "../../models/fuelLog.model.js";
-import trip from "../../models/trip.model.js";
+import FuelLog from "../../models/fuelLog.model.js";
+import Trip from "../../models/trip.model.js";
 import asyncHandler from "../../utils/asyncHandler.js";
 import { successResponse } from "../../utils/apiResponse.js";
 import * as ApiError from "../../utils/apiError.js";
@@ -15,7 +15,7 @@ import { getPagination } from "../../utils/pagination.js";
 export const getAllFuelLogs = asyncHandler(async (req, res, next) => {
   const { page, perPage, skip } = getPagination(req.query);
 
-  const fuelLogs = await fuelLog.find()
+  const fuelLogs = await FuelLog.find()
     .populate({
       path: 'trip',
       populate: [
@@ -31,7 +31,7 @@ export const getAllFuelLogs = asyncHandler(async (req, res, next) => {
     return next(ApiError.notFound("Fuel logs not found"));
   }
 
-  const total = await fuelLog.countDocuments();
+  const total = await FuelLog.countDocuments();
 
   return successResponse(res, 200, "Fuel logs fetched successfully", {
     fuelLogs,
@@ -47,7 +47,7 @@ export const getAllFuelLogs = asyncHandler(async (req, res, next) => {
  * @access  Private/Admin
  */
 export const getFuelLogById = asyncHandler(async (req, res, next) => {
-  const fuelLog = await fuelLog.findById(req.params.id)
+  const fuelLog = await FuelLog.findById(req.params.id)
     .populate({
       path: 'trip',
       populate: [
@@ -74,7 +74,7 @@ export const createFuelLog = asyncHandler(async (req, res, next) => {
   const { trip, liters, pricePerLiter, stationName, timestamp } = req.body;
 
   // Validate trip exists
-  const tripExists = await trip.findById(trip);
+  const tripExists = await Trip.findById(trip);
   if (!tripExists) {
     return next(ApiError.notFound('Trip not found'));
   }
@@ -92,10 +92,10 @@ export const createFuelLog = asyncHandler(async (req, res, next) => {
     fuelLogData.totalCost = liters * pricePerLiter;
   }
 
-  const newFuelLog = await fuelLog.create(fuelLogData);
+  const newFuelLog = await FuelLog.create(fuelLogData);
 
   // Add fuel log to trip's fuelLogs array
-  await trip.findByIdAndUpdate(trip, {
+  await Trip.findByIdAndUpdate(trip, {
     $push: { fuelLogs: newFuelLog._id }
   });
 
@@ -121,45 +121,45 @@ export const createFuelLog = asyncHandler(async (req, res, next) => {
 export const updateFuelLog = asyncHandler(async (req, res, next) => {
   const { trip, liters, pricePerLiter, stationName, timestamp } = req.body;
 
-  const fuelLog = await fuelLog.findById(req.params.id);
+  const fuelLog = await FuelLog.findById(req.params.id);
 
   if (!fuelLog) {
     return next(ApiError.notFound("Fuel log not found"));
   }
 
   // Validate trip if being changed
-  if (trip && trip !== fuelLog.trip.toString()) {
-    const tripExists = await trip.findById(trip);
+  if (trip && trip !== FuelLog.Trip.toString()) {
+    const tripExists = await Trip.findById(trip);
     if (!tripExists) {
       return next(ApiError.notFound('Trip not found'));
     }
 
     // Remove from old trip
-    await trip.findByIdAndUpdate(fuelLog.trip, {
-      $pull: { fuelLogs: fuelLog._id }
+    await Trip.findByIdAndUpdate(FuelLog.trip, {
+      $pull: { fuelLogs: FuelLog._id }
     });
 
     // Add to new trip
-    await trip.findByIdAndUpdate(trip, {
-      $push: { fuelLogs: fuelLog._id }
+    await Trip.findByIdAndUpdate(trip, {
+      $push: { fuelLogs: FuelLog._id }
     });
   }
 
   // Update fields
-  if (trip) fuelLog.trip = trip;
-  if (liters !== undefined) fuelLog.liters = liters;
-  if (pricePerLiter !== undefined) fuelLog.pricePerLiter = pricePerLiter;
-  if (stationName !== undefined) fuelLog.stationName = stationName;
-  if (timestamp) fuelLog.timestamp = timestamp;
+  if (trip) FuelLog.trip = trip;
+  if (liters !== undefined) FuelLog.liters = liters;
+  if (pricePerLiter !== undefined) FuelLog.pricePerLiter = pricePerLiter;
+  if (stationName !== undefined) FuelLog.stationName = stationName;
+  if (timestamp) FuelLog.timestamp = timestamp;
 
   // Recalculate total cost
-  if (fuelLog.liters && fuelLog.pricePerLiter) {
-    fuelLog.totalCost = fuelLog.liters * fuelLog.pricePerLiter;
+  if (FuelLog.liters && FuelLog.pricePerLiter) {
+    FuelLog.totalCost = FuelLog.liters * FuelLog.pricePerLiter;
   }
 
-  await fuelLog.save();
+  await FuelLog.save();
 
-  await fuelLog.populate({
+  await FuelLog.populate({
     path: 'trip',
     populate: [
       { path: 'driver', select: 'fullname email' },
@@ -178,18 +178,18 @@ export const updateFuelLog = asyncHandler(async (req, res, next) => {
  * @access  Private/Admin
  */
 export const deleteFuelLog = asyncHandler(async (req, res, next) => {
-  const fuelLog = await fuelLog.findById(req.params.id);
+  const fuelLog = await FuelLog.findById(req.params.id);
 
   if (!fuelLog) {
     return next(ApiError.notFound("Fuel log not found"));
   }
 
   // Remove from trip's fuelLogs array
-  await trip.findByIdAndUpdate(fuelLog.trip, {
-    $pull: { fuelLogs: fuelLog._id }
+  await Trip.findByIdAndUpdate(FuelLog.trip, {
+    $pull: { fuelLogs: FuelLog._id }
   });
 
-  await fuelLog.deleteOne();
+  await FuelLog.deleteOne();
 
   return successResponse(res, 200, "Fuel log deleted successfully");
 });

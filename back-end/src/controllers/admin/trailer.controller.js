@@ -1,4 +1,4 @@
-import trailer from "../../models/trailer.model.js";
+import Trailer from "../../models/trailer.model.js";
 import asyncHandler from "../../utils/asyncHandler.js";
 import { successResponse } from "../../utils/apiResponse.js";
 import * as ApiError from "../../utils/apiError.js";
@@ -13,7 +13,7 @@ import { getPagination } from "../../utils/pagination.js";
 export const getAllTrailers = asyncHandler(async (req, res, next) => {
   const { page, perPage, skip } = getPagination(req.query);
 
-  const trailers = await trailer.find()
+  const trailers = await Trailer.find()
     .skip(skip)
     .limit(perPage)
     .sort({ createdAt: -1 });
@@ -22,7 +22,7 @@ export const getAllTrailers = asyncHandler(async (req, res, next) => {
     return next(ApiError.notFound("Trailers not found"));
   }
 
-  const total = await trailer.countDocuments();
+  const total = await Trailer.countDocuments();
 
   return successResponse(res, 200, "Trailers fetched successfully", {
     trailers,
@@ -38,7 +38,7 @@ export const getAllTrailers = asyncHandler(async (req, res, next) => {
  * @access  Private/Admin
  */
 export const getTrailerById = asyncHandler(async (req, res, next) => {
-  const trailer = await trailer.findById(req.params.id);
+  const trailer = await Trailer.findById(req.params.id);
 
   if (!trailer) {
     return next(ApiError.notFound("Trailer not found"));
@@ -57,7 +57,7 @@ export const createTrailer = asyncHandler(async (req, res, next) => {
   const { serialNumber, type, maxLoadKg, status, lastCheckDate } = req.body;
 
   // Check if serial number already exists
-  const existingTrailer = await trailer.findOne({ serialNumber });
+  const existingTrailer = await Trailer.findOne({ serialNumber });
   if (existingTrailer) {
     return next(ApiError.badRequest('Serial number already exists'));
   }
@@ -70,7 +70,7 @@ export const createTrailer = asyncHandler(async (req, res, next) => {
     lastCheckDate
   };
 
-  const newTrailer = await trailer.create(trailerData);
+  const newTrailer = await Trailer.create(trailerData);
 
   return successResponse(res, 201, "Trailer created successfully", newTrailer);
 });
@@ -86,28 +86,28 @@ export const createTrailer = asyncHandler(async (req, res, next) => {
 export const updateTrailer = asyncHandler(async (req, res, next) => {
   const { serialNumber, type, maxLoadKg, status, lastCheckDate } = req.body;
 
-  const trailer = await trailer.findById(req.params.id);
+  const trailer = await Trailer.findById(req.params.id);
 
   if (!trailer) {
     return next(ApiError.notFound("Trailer not found"));
   }
 
   // Check if serial number is being changed and already exists
-  if (serialNumber && serialNumber !== trailer.serialNumber) {
-    const existingTrailer = await trailer.findOne({ serialNumber });
+  if (serialNumber && serialNumber !== Trailer.serialNumber) {
+    const existingTrailer = await Trailer.findOne({ serialNumber });
     if (existingTrailer) {
       return next(ApiError.badRequest('Serial number already exists'));
     }
   }
 
   // Update fields
-  if (serialNumber) trailer.serialNumber = serialNumber;
-  if (type !== undefined) trailer.type = type;
-  if (maxLoadKg !== undefined) trailer.maxLoadKg = maxLoadKg;
-  if (status) trailer.status = status;
-  if (lastCheckDate !== undefined) trailer.lastCheckDate = lastCheckDate;
+  if (serialNumber) Trailer.serialNumber = serialNumber;
+  if (type !== undefined) Trailer.type = type;
+  if (maxLoadKg !== undefined) Trailer.maxLoadKg = maxLoadKg;
+  if (status) Trailer.status = status;
+  if (lastCheckDate !== undefined) Trailer.lastCheckDate = lastCheckDate;
 
-  await trailer.save();
+  await Trailer.save();
 
   return successResponse(res, 200, "Trailer updated successfully", trailer);
 });
@@ -120,7 +120,7 @@ export const updateTrailer = asyncHandler(async (req, res, next) => {
  * @access  Private/Admin
  */
 export const deleteTrailer = asyncHandler(async (req, res, next) => {
-  const trailer = await trailer.findByIdAndDelete(req.params.id);
+  const trailer = await Trailer.findByIdAndDelete(req.params.id);
 
   if (!trailer) {
     return next(ApiError.notFound("Trailer not found"));
@@ -139,7 +139,7 @@ export const deleteTrailer = asyncHandler(async (req, res, next) => {
 export const updateTrailerStatus = asyncHandler(async (req, res, next) => {
   const { status } = req.body;
 
-  const trailer = await trailer.findById(req.params.id);
+  const trailer = await Trailer.findById(req.params.id);
 
   if (!trailer) {
     return next(ApiError.notFound("Trailer not found"));
@@ -149,8 +149,8 @@ export const updateTrailerStatus = asyncHandler(async (req, res, next) => {
     return next(ApiError.badRequest('Invalid status'));
   }
 
-  trailer.status = status;
-  await trailer.save();
+  Trailer.status = status;
+  await Trailer.save();
 
   return successResponse(res, 200, "Trailer status updated successfully", trailer);
 });

@@ -1,6 +1,6 @@
 // Authentication Controller
-import user from "../models/user.model.js";
-import token from "../models/token.model.js";
+import User from "../models/user.model.js";
+import Token from "../models/token.model.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import { comparePassword } from "../utils/hashing.js";
 import { generateAccessToken, generateRefreshToken, decode, verifyRefreshToken } from "../utils/jwt.js";
@@ -15,8 +15,8 @@ import * as ApiError from '../utils/apiError.js'
  * @access  Public
  */
 const saveToken = async (userId, refreshToken) => {
-  await token.deleteOne({ userId })
-  await token.create({ userId, token: refreshToken })
+  await Token.deleteOne({ userId })
+  await Token.create({ userId, token: refreshToken })
 }
 
 
@@ -29,27 +29,27 @@ export const login = asyncHandler(async (req, res, next) => {
 
   const { email, password } = req.body;
 
-  const user = await user.findOne({ email });
+  const user = await User.findOne({ email });
 
-  if (!user || !user.passwordHash || !(await comparePassword(password, user.passwordHash))) {
+  if (!user || !User.passwordHash || !(await comparePassword(password, User.passwordHash))) {
     return next(ApiError.unauthorized('Invalid email or password'))
   }
 
 
-  if (!user.isActive) {
+  if (!User.isActive) {
     return next(ApiError.unauthorized('User is not active'))
   }
 
   const payload = {
-    id: user.id,
-    role: user.role,
-    email: user.email
+    id: User.id,
+    role: User.role,
+    email: User.email
   }
 
   const accessToken = generateAccessToken(payload)
   const refreshToken = generateRefreshToken(payload)
 
-  await saveToken(user.id, refreshToken)
+  await saveToken(User.id, refreshToken)
   const accessTokenData = decode(accessToken)
 
 
@@ -78,7 +78,7 @@ export const refresh = asyncHandler(async (req, res, next) => {
 
   if (!refreshToken) return next(ApiError.unauthorized('No refresh token provided'));
 
-  const existingToken = await token.findOne({ token: refreshToken });
+  const existingToken = await Token.findOne({ token: refreshToken });
   if (!existingToken) return next(ApiError.unauthorized('Invalid refresh token'));
 
   let payload;
@@ -101,11 +101,11 @@ export const refresh = asyncHandler(async (req, res, next) => {
 /**
  * @desc    Logout user (Admin or Driver)
  * @route   POST /api/v1/auth/logout
- * @access  Public
+ * @access  Private
  */
 export const logout = asyncHandler(async (req, res) => {
 
-  const deletedToken = await token.deleteOne({ userId: req.user.id });
+  const deletedToken = await Token.deleteOne({ userId: req.user.id });
 
   if (!deletedToken) {
     return next(ApiError.notFound('Token not found'))
@@ -122,7 +122,7 @@ export const logout = asyncHandler(async (req, res) => {
  * @access  Private
  */
 export const getMe = asyncHandler(async (req, res) => {
-  const user = await user.findById(req.user.userId).select("-passwordHash");
+  const user = await User.findById(req.user.userId).select("-passwordHash");
 
   if (!user) {
     return next(ApiError.notFound('User not found'))

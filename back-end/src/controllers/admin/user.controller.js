@@ -1,4 +1,4 @@
-import user from "../../models/user.model.js";
+import User from "../../models/user.model.js";
 import asyncHandler from "../../utils/asyncHandler.js";
 import { hashPassword } from "../../utils/hashing.js";
 import { successResponse } from "../../utils/apiResponse.js";
@@ -17,7 +17,7 @@ export const getAllUsers = asyncHandler(async (req, res, next) => {
   const { page, perPage, skip } = getPagination(req.query)
 
 
-  const users = await user.find()
+  const users = await User.find()
     .select("-passwordHash")
     .skip(skip)
     .limit(perPage);
@@ -26,7 +26,7 @@ export const getAllUsers = asyncHandler(async (req, res, next) => {
     return next(ApiError.notFound("Users not found"));
   }
 
-  const total = await user.countDocuments();
+  const total = await User.countDocuments();
 
   return successResponse(res, 200, "users fetched successfully", {
     users,
@@ -45,7 +45,7 @@ export const getAllUsers = asyncHandler(async (req, res, next) => {
  */
 export const getUserById = asyncHandler(async (req, res, next) => {
 
-  const user = await user.findById(req.params.id)
+  const user = await User.findById(req.params.id)
     .select("-passwordHash");
 
   if (!user) {
@@ -68,7 +68,7 @@ export const createUser = asyncHandler(async (req, res, next) => {
   const { fullname, email, password, role, licenseNumber, cin, phone, isActive } = req.body;
 
   // Check if email already exists
-  const existingUser = await user.findOne({ email });
+  const existingUser = await User.findOne({ email });
   if (existingUser) {
     return next(ApiError.badRequest('Email already exists'));
   }
@@ -90,7 +90,7 @@ export const createUser = asyncHandler(async (req, res, next) => {
     userData.phone = phone;
   }
 
-  const newUser = await user.create(userData);
+  const newUser = await User.create(userData);
 
   return successResponse(res, 201, "user created successfully", newUser);
 
@@ -108,28 +108,28 @@ export const updateUser = asyncHandler(async (req, res, next) => {
 
   const { fullname, email, password, role, licenseNumber, cin, phone, isActive } = req.body;
 
-  const user = await user.findById(req.params.id);
+  const user = await User.findById(req.params.id);
 
   if (!user) {
     return next(ApiError.notFound("User not found"));
   }
 
-  user.fullname = fullname;
-  user.email = email;
-  user.role = role;
-  user.isActive = isActive;
+  User.fullname = fullname;
+  User.email = email;
+  User.role = role;
+  User.isActive = isActive;
 
   if (role === 'driver') {
-    user.licenseNumber = licenseNumber;
-    user.cin = cin;
-    user.phone = phone;
+    User.licenseNumber = licenseNumber;
+    User.cin = cin;
+    User.phone = phone;
   }
 
   if (password) {
-    user.passwordHash = await hashPassword(password);
+    User.passwordHash = await hashPassword(password);
   }
 
-  await user.save();
+  await User.save();
 
   return successResponse(res, 200, "user updated successfully", user);
 
@@ -144,13 +144,13 @@ export const updateUser = asyncHandler(async (req, res, next) => {
  */
 export const deleteUser = asyncHandler(async (req, res, next) => {
 
-  const user = await user.findById(req.params.id);
+  const user = await User.findById(req.params.id);
 
   if (!user) {
     return next(ApiError.notFound("User not found"));
   }
 
-  await user.remove();
+  await User.remove();
 
   return successResponse(res, 200, "user deleted successfully");
 
@@ -165,15 +165,15 @@ export const deleteUser = asyncHandler(async (req, res, next) => {
  */
 export const toggleUserActiveStatus = asyncHandler(async (req, res, next) => {
 
-  const user = await user.findById(req.params.id);
+  const user = await User.findById(req.params.id);
 
   if (!user) {
     return next(ApiError.notFound("User not found"));
   }
 
-  user.isActive = !user.isActive;
+  User.isActive = !User.isActive;
 
-  await user.save();
+  await User.save();
 
   return successResponse(res, 200, "user active status toggled successfully", user);
 

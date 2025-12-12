@@ -1,7 +1,7 @@
-import trip from "../../models/trip.model.js";
-import user from "../../models/user.model.js";
-import truck from "../../models/truck.model.js";
-import trailer from "../../models/trailer.model.js";
+import Trip from "../../models/Trip.model.js";
+import User from "../../models/User.model.js";
+import Truck from "../../models/Truck.model.js";
+import Trailer from "../../models/Trailer.model.js";
 import asyncHandler from "../../utils/asyncHandler.js";
 import { successResponse } from "../../utils/apiResponse.js";
 import * as ApiError from "../../utils/apiError.js";
@@ -19,7 +19,7 @@ import { getPagination } from "../../utils/pagination.js";
 export const getAllTrips = asyncHandler(async (req, res, next) => {
   const { page, perPage, skip } = getPagination(req.query);
 
-  const trips = await trip.find()
+  const trips = await Trip.find()
     .populate('driver', 'fullname email phone')
     .populate('truck', 'registrationNumber brand model')
     .populate('trailer', 'serialNumber type')
@@ -31,7 +31,7 @@ export const getAllTrips = asyncHandler(async (req, res, next) => {
     return next(ApiError.notFound("Trips not found"));
   }
 
-  const total = await trip.countDocuments();
+  const total = await Trip.countDocuments();
 
   return successResponse(res, 200, "Trips fetched successfully", {
     trips,
@@ -48,7 +48,7 @@ export const getAllTrips = asyncHandler(async (req, res, next) => {
  * @access  Private/Admin
  */
 export const getTripById = asyncHandler(async (req, res, next) => {
-  const trip = await trip.findById(req.params.id)
+  const trip = await Trip.findById(req.params.id)
     .populate('driver', 'fullname email phone licenseNumber')
     .populate('truck', 'registrationNumber brand model currentKm')
     .populate('trailer', 'serialNumber type maxLoadKg')
@@ -76,7 +76,7 @@ export const createTrip = asyncHandler(async (req, res, next) => {
 
 
   // Validate driver exists and is a driver
-  const driverExists = await user.findById(driver);
+  const driverExists = await User.findById(driver);
   if (!driverExists) {
     return next(ApiError.notFound('Driver not found'));
   }
@@ -86,7 +86,7 @@ export const createTrip = asyncHandler(async (req, res, next) => {
 
 
   // Validate truck exists and is available
-  const truckExists = await truck.findById(truck);
+  const truckExists = await Truck.findById(truck);
   if (!truckExists) {
     return next(ApiError.notFound('Truck not found'));
   }
@@ -97,7 +97,7 @@ export const createTrip = asyncHandler(async (req, res, next) => {
 
   // Validate trailer if exists
   if (trailer) {
-    const trailerExists = await trailer.findById(trailer);
+    const trailerExists = await Trailer.findById(trailer);
     if (!trailerExists) {
       return next(ApiError.notFound('Trailer not found'));
     }
@@ -128,14 +128,14 @@ export const createTrip = asyncHandler(async (req, res, next) => {
     tripData.totalDistance = endKm - startKm;
   }
 
-  const newTrip = await trip.create(tripData);
+  const newTrip = await Trip.create(tripData);
 
 
   // Update truck and trailer status if trip is in_progress
   if (status === 'in_progress') {
-    await truck.findByIdAndUpdate(truck, { status: 'on_trip' });
+    await Truck.findByIdAndUpdate(truck, { status: 'on_trip' });
     if (trailer) {
-      await trailer.findByIdAndUpdate(trailer, { status: 'on_trip' });
+      await Trailer.findByIdAndUpdate(trailer, { status: 'on_trip' });
     }
   }
 
@@ -158,56 +158,56 @@ export const createTrip = asyncHandler(async (req, res, next) => {
 export const updateTrip = asyncHandler(async (req, res, next) => {
   const { driver, truck, trailer, startLocation, endLocation, plannedDate, status, startKm, endKm, fuelUsed, notes } = req.body;
 
-  const trip = await trip.findById(req.params.id);
+  const trip = await Trip.findById(req.params.id);
 
   if (!trip) {
     return next(ApiError.notFound("Trip not found"));
   }
 
   // Validate driver if being changed
-  if (driver && driver !== trip.driver.toString()) {
-    const driverExists = await user.findById(driver);
+  if (driver && driver !== Trip.driver.toString()) {
+    const driverExists = await User.findById(driver);
     if (!driverExists || driverExists.role !== 'driver') {
       return next(ApiError.badRequest('Invalid driver'));
     }
   }
 
   // Validate truck if being changed
-  if (truck && truck !== trip.truck.toString()) {
-    const truckExists = await truck.findById(truck);
+  if (truck && truck !== Trip.Truck.toString()) {
+    const truckExists = await Truck.findById(truck);
     if (!truckExists) {
       return next(ApiError.notFound('Truck not found'));
     }
   }
 
   // Validate trailer if being changed
-  if (trailer && trailer !== trip.trailer?.toString()) {
-    const trailerExists = await trailer.findById(trailer);
+  if (trailer && trailer !== Trip.trailer?.toString()) {
+    const trailerExists = await Trailer.findById(trailer);
     if (!trailerExists) {
       return next(ApiError.notFound('Trailer not found'));
     }
   }
 
   // Update fields
-  if (driver) trip.driver = driver;
-  if (truck) trip.truck = truck;
-  if (trailer !== undefined) trip.trailer = trailer;
-  if (startLocation) trip.startLocation = startLocation;
-  if (endLocation) trip.endLocation = endLocation;
-  if (plannedDate) trip.plannedDate = plannedDate;
-  if (status) trip.status = status;
-  if (startKm !== undefined) trip.startKm = startKm;
-  if (endKm !== undefined) trip.endKm = endKm;
-  if (fuelUsed !== undefined) trip.fuelUsed = fuelUsed;
-  if (notes !== undefined) trip.notes = notes;
+  if (driver) Trip.driver = driver;
+  if (truck) Trip.truck = truck;
+  if (trailer !== undefined) Trip.trailer = trailer;
+  if (startLocation) Trip.startLocation = startLocation;
+  if (endLocation) Trip.endLocation = endLocation;
+  if (plannedDate) Trip.plannedDate = plannedDate;
+  if (status) Trip.status = status;
+  if (startKm !== undefined) Trip.startKm = startKm;
+  if (endKm !== undefined) Trip.endKm = endKm;
+  if (fuelUsed !== undefined) Trip.fuelUsed = fuelUsed;
+  if (notes !== undefined) Trip.notes = notes;
 
   // Recalculate total distance
-  if (trip.startKm && trip.endKm) {
-    trip.totalDistance = trip.endKm - trip.startKm;
+  if (Trip.startKm && Trip.endKm) {
+    Trip.totalDistance = Trip.endKm - Trip.startKm;
   }
 
-  await trip.save();
-  await trip.populate('driver truck trailer');
+  await Trip.save();
+  await Trip.populate('driver truck trailer');
 
   return successResponse(res, 200, "Trip updated successfully", trip);
 });
@@ -220,7 +220,7 @@ export const updateTrip = asyncHandler(async (req, res, next) => {
  * @access  Private/Admin
  */
 export const deleteTrip = asyncHandler(async (req, res, next) => {
-  const trip = await trip.findByIdAndDelete(req.params.id);
+  const trip = await Trip.findByIdAndDelete(req.params.id);
 
   if (!trip) {
     return next(ApiError.notFound("Trip not found"));
