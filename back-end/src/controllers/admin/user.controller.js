@@ -45,8 +45,6 @@ export const getAllUsers = asyncHandler(async (req, res, next) => {
  */
 export const getUserById = asyncHandler(async (req, res, next) => {
 
-  // return successResponse(res, 200, "user fetched successfully", { id: req.params.id });
-
   const user = await User.findById(req.params.id)
     .select("-passwordHash");
 
@@ -69,7 +67,6 @@ export const createUser = asyncHandler(async (req, res, next) => {
 
   const { fullname, email, password, role, licenseNumber, cin, phone, isActive } = req.body;
 
-  // Check if email already exists
   const existingUser = await User.findOne({ email });
   if (existingUser) {
     return next(ApiError.badRequest('Email already exists'));
@@ -116,22 +113,22 @@ export const updateUser = asyncHandler(async (req, res, next) => {
     return next(ApiError.notFound("User not found"));
   }
 
-  User.fullname = fullname;
-  User.email = email;
-  User.role = role;
-  User.isActive = isActive;
+  user.fullname = fullname || user.fullname;
+  user.email = email || user.email;
+  user.role = role || user.role;
+  user.isActive = isActive !== undefined ? isActive : user.isActive;
 
-  if (role === 'driver') {
-    User.licenseNumber = licenseNumber;
-    User.cin = cin;
-    User.phone = phone;
+  if (user.role === 'driver') {
+    user.licenseNumber = licenseNumber || user.licenseNumber;
+    user.cin = cin || user.cin;
+    user.phone = phone || user.phone;
   }
 
   if (password) {
-    User.passwordHash = await hashPassword(password);
+    user.passwordHash = await hashPassword(password);
   }
 
-  await User.save();
+  await user.save();
 
   return successResponse(res, 200, "user updated successfully", user);
 
@@ -152,7 +149,7 @@ export const deleteUser = asyncHandler(async (req, res, next) => {
     return next(ApiError.notFound("User not found"));
   }
 
-  await User.remove();
+  await user.remove();
 
   return successResponse(res, 200, "user deleted successfully");
 
@@ -173,9 +170,9 @@ export const toggleUserActiveStatus = asyncHandler(async (req, res, next) => {
     return next(ApiError.notFound("User not found"));
   }
 
-  User.isActive = !User.isActive;
+  user.isActive = !user.isActive;
 
-  await User.save();
+  await user.save();
 
   return successResponse(res, 200, "user active status toggled successfully", user);
 

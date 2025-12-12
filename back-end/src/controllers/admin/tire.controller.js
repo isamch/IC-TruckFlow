@@ -60,7 +60,7 @@ export const getTireById = asyncHandler(async (req, res, next) => {
  * @access  Private/Admin
  */
 export const createTire = asyncHandler(async (req, res, next) => {
-  const { position, installKm, currentKm, condition, truck } = req.body;
+  const { status, position, installKm, currentKm, condition, truck } = req.body;
 
   // If truck is provided, validate it exists
   if (truck) {
@@ -71,6 +71,7 @@ export const createTire = asyncHandler(async (req, res, next) => {
   }
 
   const tireData = {
+    status,
     position,
     installKm,
     currentKm: currentKm || 0,
@@ -109,7 +110,7 @@ export const createTire = asyncHandler(async (req, res, next) => {
  * @access  Private/Admin
  */
 export const updateTire = asyncHandler(async (req, res, next) => {
-  const { position, installKm, currentKm, condition, truck } = req.body;
+  const { status, position, installKm, currentKm, condition, truck } = req.body;
 
   const tire = await Tire.findById(req.params.id);
 
@@ -125,30 +126,31 @@ export const updateTire = asyncHandler(async (req, res, next) => {
     }
 
     // Remove tire from old truck if exists
-    if (Tire.truck) {
-      const oldTruck = await Truck.findById(Tire.truck);
-      oldTruck.tires = oldTruck.tires.filter(id => id.toString() !== Tire._id.toString());
+    if (tire.truck) {
+      const oldTruck = await Truck.findById(tire.truck);
+      oldTruck.tires = oldTruck.tires.filter(id => id.toString() !== tire._id.toString());
       await oldTruck.save();
     }
 
     // add tire to new truck
-    if (!Truck.tires.includes(Tire._id)) {
-      Truck.tires.push(Tire._id);
-      await Truck.save();
+    if (!truck.tires.includes(tire._id)) {
+      truck.tires.push(tire._id);
+      await truck.save();
     }
   }
 
   // Update fields
-  if (position) Tire.position = position;
-  if (installKm !== undefined) Tire.installKm = installKm;
-  if (currentKm !== undefined) Tire.currentKm = currentKm;
-  if (condition) Tire.condition = condition;
-  if (truck !== undefined) Tire.truck = truck;
+  if (status) tire.status = status;
+  if (position) tire.position = position;
+  if (installKm !== undefined) tire.installKm = installKm;
+  if (currentKm !== undefined) tire.currentKm = currentKm;
+  if (condition) tire.condition = condition;
+  if (truck !== undefined) tire.truck = truck;
 
-  await Tire.save();
+  await tire.save();
 
   // Populate truck info
-  await Tire.populate('truck', 'registrationNumber brand model');
+  await tire.populate('truck', 'registrationNumber brand model');
 
   return successResponse(res, 200, "Tire updated successfully", tire);
 });
@@ -168,13 +170,13 @@ export const deleteTire = asyncHandler(async (req, res, next) => {
   }
 
   // Remove tire from truck if assigned
-  if (Tire.truck) {
-    const truck = await Truck.findById(Tire.truck);
-    Truck.tires = Truck.tires.filter((id) => id.toString() !== Tire._id.toString());
+  if (tire.truck) {
+    const truck = await Truck.findById(tire.truck);
+    Truck.tires = Truck.tires.filter((id) => id.toString() !== tire._id.toString());
     await Truck.save();
   }
 
-  await Tire.deleteOne();
+  await tire.deleteOne();
 
   return successResponse(res, 200, "Tire deleted successfully");
 });
@@ -196,10 +198,10 @@ export const changeTirePosition = asyncHandler(async (req, res, next) => {
     return next(ApiError.notFound("Tire not found"));
   }
 
-  Tire.position = position;
-  await Tire.save();
+  tire.position = position;
+  await tire.save();
 
-  await Tire.populate('truck', 'registrationNumber brand model');
+  await tire.populate('truck', 'registrationNumber brand model');
 
   return successResponse(res, 200, "Tire position changed successfully", tire);
 });
@@ -225,10 +227,10 @@ export const updateTireCondition = asyncHandler(async (req, res, next) => {
     return next(ApiError.badRequest('Invalid condition'));
   }
 
-  Tire.condition = condition;
-  await Tire.save();
+  tire.condition = condition;
+  await tire.save();
 
-  await Tire.populate('truck', 'registrationNumber brand model');
+  await tire.populate('truck', 'registrationNumber brand model');
 
   return successResponse(res, 200, "Tire condition updated successfully", tire);
 });
@@ -250,18 +252,24 @@ export const assignTireToTruck = asyncHandler(async (req, res, next) => {
     return next(ApiError.notFound("Tire not found"));
   }
 
+
+
+  if (tire.status === 'on_truck') {
+    return next(ApiError.badRequest('Tire is already assigned to a truck'));
+  }
+
   // If truckId is null, unassign tire
   if (truckId === null) {
     // Remove tire from old truck if exists
-    if (Tire.truck) {
-      const oldTruck = await Truck.findById(Tire.truck);
-      oldTruck.tires = oldTruck.tires.filter(id => id.toString() !== Tire._id.toString());
+    if (tire.truck) {
+      const oldTruck = await Truck.findById(tire.truck);
+      oldTruck.tires = oldTruck.tires.filter(id => id.toString() !== tire._id.toString());
       await oldTruck.save();
     }
 
     // remove truck from tire
-    Tire.truck = null;
-    await Tire.save();
+    tire.truck = null;
+    await tire.save();
 
     return successResponse(res, 200, "Tire unassigned successfully", tire);
   }
@@ -273,22 +281,23 @@ export const assignTireToTruck = asyncHandler(async (req, res, next) => {
   }
 
   // Remove tire from old truck if exists
-  if (Tire.truck) {
-    const oldTruck = await Truck.findById(Tire.truck);
-    oldTruck.tires = oldTruck.tires.filter(id => id.toString() !== Tire._id.toString());
+  if (tire.truck) {
+    const oldTruck = await Truck.findById(tire.truck);
+    oldTruck.tires = oldTruck.tires.filter(id => id.toString() !== tire._id.toString());
     await oldTruck.save();
   }
 
   // Add tire to new truck
   const newTruck = await Truck.findById(truckId);
-  newTruck.tires.push(Tire._id);
+  newTruck.tires.push(tire._id);
   await newTruck.save();
 
   // add truck to tire
-  Tire.truck = truckId;
-  await Tire.save();
+  tire.status = 'on_truck';
+  tire.truck = truckId;
+  await tire.save();
 
-  await Tire.populate('truck', 'registrationNumber brand model');
+  await tire.populate('truck', 'registrationNumber brand model');
 
   return successResponse(res, 200, "Tire assigned to truck successfully", tire);
 });

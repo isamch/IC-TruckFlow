@@ -147,20 +147,20 @@ export const updateTruck = asyncHandler(async (req, res, next) => {
   }
 
   // Update fields
-  if (registrationNumber) Truck.registrationNumber = registrationNumber;
-  if (brand !== undefined) Truck.brand = brand;
-  if (model !== undefined) Truck.model = model;
-  if (currentKm !== undefined) Truck.currentKm = currentKm;
-  if (fuelCapacity !== undefined) Truck.fuelCapacity = fuelCapacity;
-  if (status) Truck.status = status;
-  if (lastOilChangeKm !== undefined) Truck.lastOilChangeKm = lastOilChangeKm;
-  if (lastGeneralCheckDate !== undefined) Truck.lastGeneralCheckDate = lastGeneralCheckDate;
-  if (tires !== undefined) Truck.tires = tires;
+  if (registrationNumber) truck.registrationNumber = registrationNumber;
+  if (brand !== undefined) truck.brand = brand;
+  if (model !== undefined) truck.model = model;
+  if (currentKm !== undefined) truck.currentKm = currentKm;
+  if (fuelCapacity !== undefined) truck.fuelCapacity = fuelCapacity;
+  if (status) truck.status = status;
+  if (lastOilChangeKm !== undefined) truck.lastOilChangeKm = lastOilChangeKm;
+  if (lastGeneralCheckDate !== undefined) truck.lastGeneralCheckDate = lastGeneralCheckDate;
+  if (tires !== undefined) truck.tires = tires;
 
-  await Truck.save();
+  await truck.save();
 
   // get updated truck with populated tires
-  await Truck.populate('tires');
+  await truck.populate('tires');
 
   return successResponse(res, 200, "Truck updated successfully", truck);
 });
@@ -203,8 +203,8 @@ export const updateTruckStatus = asyncHandler(async (req, res, next) => {
     return next(ApiError.badRequest('Invalid status'));
   }
 
-  Truck.status = status;
-  await Truck.save();
+  truck.status = status;
+  await truck.save();
 
   return successResponse(res, 200, "Truck status updated successfully", truck);
 });
@@ -232,14 +232,18 @@ export const addTireToTruck = asyncHandler(async (req, res, next) => {
     return next(ApiError.notFound('Tire not found'));
   }
 
-  if (Truck.tires.includes(tireId)) {
+  if (tire.status !== 'available') {
+    return next(ApiError.badRequest('Tire is not available'));
+  }
+
+  if (truck.tires.includes(tireId)) {
     return next(ApiError.badRequest('Tire already added to this truck'));
   }
 
-  Truck.tires.push(tireId);
-  await Truck.save();
+  truck.tires.push(tireId);
+  await truck.save();
 
-  await Truck.populate('tires');
+  await truck.populate('tires');
 
   return successResponse(res, 200, "Tire added to truck successfully", truck);
 });
@@ -255,20 +259,29 @@ export const addTireToTruck = asyncHandler(async (req, res, next) => {
 export const removeTireFromTruck = asyncHandler(async (req, res, next) => {
   const { tireId } = req.body;
 
+  const tire = await Tire.findById(tireId);
+  if (!tire) {
+    return next(ApiError.notFound('Tire not found'));
+  }
+
+  tire.status = 'available';
+  tire.truck = null;
+  await tire.save();
+
   const truck = await Truck.findById(req.params.id);
 
   if (!truck) {
     return next(ApiError.notFound("Truck not found"));
   }
 
-  if (!Truck.tires.includes(tireId)) {
+  if (!truck.tires.includes(tireId)) {
     return next(ApiError.badRequest('Tire not found in this truck'));
   }
 
-  Truck.tires = Truck.tires.filter(tire => Tire.toString() !== tireId);
-  await Truck.save();
+  truck.tires = truck.tires.filter(tire => tire.toString() !== tireId);
+  await truck.save();
 
-  await Truck.populate('tires');
+  await truck.populate('tires');
 
   return successResponse(res, 200, "Tire removed from truck successfully", truck);
 });
@@ -294,12 +307,12 @@ export const getTruckMaintenanceStatus = asyncHandler(async (req, res, next) => 
 
   return successResponse(res, 200, "Truck maintenance status fetched successfully", {
     truck: {
-      _id: Truck._id,
-      registrationNumber: Truck.registrationNumber,
-      brand: Truck.brand,
-      model: Truck.model,
-      currentKm: Truck.currentKm,
-      status: Truck.status
+      _id: truck._id,
+      registrationNumber: truck.registrationNumber,
+      brand: truck.brand,
+      model: truck.model,
+      currentKm: truck.currentKm,
+      status: truck.status
     },
     maintenance: {
       totalAlerts: maintenanceData.totalAlerts,

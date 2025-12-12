@@ -2,6 +2,11 @@ import mongoose from "mongoose";
 
 
 const tireSchema = new mongoose.Schema({
+  status: {
+    type: String,
+    enum: ['on_truck', 'available'],
+    default: 'on_truck'
+  },
   position: { type: String, required: true },
   installKm: { type: Number, required: true },
   currentKm: { type: Number, default: 0 },
