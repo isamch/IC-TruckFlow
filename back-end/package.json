@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "nodemon server.js",
     "start": "node server.js",
+    "seed:db": "node src/scripts/seedDatabase.js",
     "make:controller": "node src/console/index.js make:controller",
     "make:model": "node src/console/index.js make:model",
     "make:route": "node src/console/index.js make:route",
