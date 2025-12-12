@@ -1,7 +1,7 @@
-import Trip from "../../models/Trip.model.js";
-import User from "../../models/User.model.js";
-import Truck from "../../models/Truck.model.js";
-import Trailer from "../../models/Trailer.model.js";
+import Trip from "../../models/trip.model.js";
+import User from "../../models/user.model.js";
+import Truck from "../../models/truck.model.js";
+import Trailer from "../../models/trailer.model.js";
 import asyncHandler from "../../utils/asyncHandler.js";
 import { successResponse } from "../../utils/apiResponse.js";
 import * as ApiError from "../../utils/apiError.js";

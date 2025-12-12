@@ -1,5 +1,5 @@
-import Tire from "../../models/Tire.model.js";
-import Truck from "../../models/Truck.model.js";
+import Tire from "../../models/tire.model.js";
+import Truck from "../../models/truck.model.js";
 import asyncHandler from "../../utils/asyncHandler.js";
 import { successResponse } from "../../utils/apiResponse.js";
 import * as ApiError from "../../utils/apiError.js";
