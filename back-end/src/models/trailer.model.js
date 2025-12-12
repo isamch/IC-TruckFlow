@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 
-const trailerSchema = new mongoose.Schema({
+const TrailerSchema = new mongoose.Schema({
   serialNumber: { type: String, required: true, unique: true },
   type: String,
   maxLoadKg: Number,
@@ -16,4 +16,4 @@ const trailerSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 
-export default mongoose.model("trailer", trailerSchema);
+export default mongoose.model("Trailer", TrailerSchema);

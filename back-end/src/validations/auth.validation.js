@@ -20,3 +20,14 @@ export const loginValidation = Joi.object({
       'string.empty': 'Password cannot be empty'
     })
 });
+
+
+// refresh Validation
+export const refreshValidation = Joi.object({
+  refreshToken: Joi.string()
+    .required()
+    .messages({
+      'any.required': 'Refresh token is required',
+      'string.empty': 'Refresh token cannot be empty'
+    })
+});

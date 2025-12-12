@@ -19,4 +19,4 @@ const maintenanceLogSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 
-export default mongoose.model("maintenanceLog", maintenanceLogSchema);
+export default mongoose.model("MaintenanceLog", maintenanceLogSchema);

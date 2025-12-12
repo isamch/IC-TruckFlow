@@ -3,13 +3,14 @@ import { login, logout, getMe, refresh } from "../../controllers/auth.controller
 import validate from "../../middleware/validator.middleware.js";
 import { loginValidation } from "../../validations/auth.validation.js";
 import { protect } from "../../middleware/auth.middleware.js";
+import { refreshValidation } from "../../validations/auth.validation.js";
 
 
 const router = express.Router();
 
 // Public Routes
 router.post("/login", validate({ 'body': loginValidation }), login);
-router.post("/refresh", refresh);
+router.post("/refresh", validate({ 'body': refreshValidation }), refresh);
 
 // Protected Routes
 router.post("/logout", protect, logout);

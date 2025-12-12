@@ -31,7 +31,7 @@ export const protect = asyncHandler(async (req, res, next) => {
   // The payload we created in 'login' contains everything we need
   // No need for a database (DB) hit here, this is very fast
   req.user = {
-    id: payload.id,
+    userId: payload.id,
     role: payload.role,
   }
 

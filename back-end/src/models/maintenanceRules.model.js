@@ -13,4 +13,4 @@ const maintenanceRulesSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 
-export default mongoose.model("maintenanceRules", maintenanceRulesSchema);
+export default mongoose.model("MaintenanceRules", maintenanceRulesSchema);

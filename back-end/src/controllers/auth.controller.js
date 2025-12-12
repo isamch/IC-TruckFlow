@@ -31,25 +31,25 @@ export const login = asyncHandler(async (req, res, next) => {
 
   const user = await User.findOne({ email });
 
-  if (!user || !User.passwordHash || !(await comparePassword(password, User.passwordHash))) {
+  if (!user || !user.passwordHash || !(await comparePassword(password, user.passwordHash))) {
     return next(ApiError.unauthorized('Invalid email or password'))
   }
 
 
-  if (!User.isActive) {
+  if (!user.isActive) {
     return next(ApiError.unauthorized('User is not active'))
   }
 
   const payload = {
-    id: User.id,
-    role: User.role,
-    email: User.email
+    id: user.id,
+    role: user.role,
+    email: user.email
   }
 
   const accessToken = generateAccessToken(payload)
   const refreshToken = generateRefreshToken(payload)
 
-  await saveToken(User.id, refreshToken)
+  await saveToken(user.id, refreshToken)
   const accessTokenData = decode(accessToken)
 
 
@@ -103,7 +103,7 @@ export const refresh = asyncHandler(async (req, res, next) => {
  * @route   POST /api/v1/auth/logout
  * @access  Private
  */
-export const logout = asyncHandler(async (req, res) => {
+export const logout = asyncHandler(async (req, res, next) => {
 
   const deletedToken = await Token.deleteOne({ userId: req.user.id });
 
@@ -121,7 +121,7 @@ export const logout = asyncHandler(async (req, res) => {
  * @route   GET /api/auth/me
  * @access  Private
  */
-export const getMe = asyncHandler(async (req, res) => {
+export const getMe = asyncHandler(async (req, res, next) => {
   const user = await User.findById(req.user.userId).select("-passwordHash");
 
   if (!user) {

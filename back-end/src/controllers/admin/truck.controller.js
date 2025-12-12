@@ -16,11 +16,13 @@ import { calculateTruckMaintenanceAlerts } from "../../utils/maintenanceHelper.j
 export const getAllTrucks = asyncHandler(async (req, res, next) => {
   const { page, perPage, skip } = getPagination(req.query);
 
+
   const trucks = await Truck.find()
     .populate('tires')
     .skip(skip)
     .limit(perPage)
     .sort({ createdAt: -1 });
+
 
   if (!trucks) {
     return next(ApiError.notFound("Trucks not found"));

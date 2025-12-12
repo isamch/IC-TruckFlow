@@ -15,4 +15,4 @@ const tireSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 
-export default mongoose.model("tire", tireSchema);
+export default mongoose.model("Tire", tireSchema);

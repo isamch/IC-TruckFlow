@@ -13,4 +13,4 @@ const fuelLogSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 
-export default mongoose.model("fuelLog", fuelLogSchema);
+export default mongoose.model("FuelLog", fuelLogSchema);
