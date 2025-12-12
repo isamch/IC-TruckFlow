@@ -45,6 +45,8 @@ export const getAllUsers = asyncHandler(async (req, res, next) => {
  */
 export const getUserById = asyncHandler(async (req, res, next) => {
 
+  // return successResponse(res, 200, "user fetched successfully", { id: req.params.id });
+
   const user = await User.findById(req.params.id)
     .select("-passwordHash");
 

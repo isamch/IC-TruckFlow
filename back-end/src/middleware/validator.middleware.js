@@ -39,9 +39,9 @@ export default (schema) => (req, res, next) => {
   }
 
 
-  Object.assign(req.body, value.body)
-  Object.assign(req.params, value.params)
-  Object.assign(req.query, value.query)
+  if (value.body) Object.assign(req.body, value.body)
+  if (value.params) Object.assign(req.params, value.params)
+  if (value.query) Object.assign(req.query, value.query)
 
   next()
 }
