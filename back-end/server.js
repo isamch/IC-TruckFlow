@@ -11,7 +11,7 @@ connectDB();
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
-  console.log(`laboratory-management-system server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+  console.log(`IC-TRUCKFLOW server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
   console.log(`http://localhost:${PORT}`)
 
 });

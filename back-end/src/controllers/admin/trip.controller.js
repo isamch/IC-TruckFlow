@@ -165,7 +165,7 @@ export const updateTrip = asyncHandler(async (req, res, next) => {
   }
 
   // Validate driver if being changed
-  if (driver && driver !== Trip.driver.toString()) {
+  if (driver && driver !== trip.driver.toString()) {
     const driverExists = await User.findById(driver);
     if (!driverExists || driverExists.role !== 'driver') {
       return next(ApiError.badRequest('Invalid driver'));
@@ -173,7 +173,7 @@ export const updateTrip = asyncHandler(async (req, res, next) => {
   }
 
   // Validate truck if being changed
-  if (truck && truck !== Trip.Truck.toString()) {
+  if (truck && truck !== trip.truck.toString()) {
     const truckExists = await Truck.findById(truck);
     if (!truckExists) {
       return next(ApiError.notFound('Truck not found'));
@@ -181,7 +181,7 @@ export const updateTrip = asyncHandler(async (req, res, next) => {
   }
 
   // Validate trailer if being changed
-  if (trailer && trailer !== Trip.trailer?.toString()) {
+  if (trailer && trailer !== trip.trailer?.toString()) {
     const trailerExists = await Trailer.findById(trailer);
     if (!trailerExists) {
       return next(ApiError.notFound('Trailer not found'));
@@ -189,25 +189,25 @@ export const updateTrip = asyncHandler(async (req, res, next) => {
   }
 
   // Update fields
-  if (driver) Trip.driver = driver;
-  if (truck) Trip.truck = truck;
-  if (trailer !== undefined) Trip.trailer = trailer;
-  if (startLocation) Trip.startLocation = startLocation;
-  if (endLocation) Trip.endLocation = endLocation;
-  if (plannedDate) Trip.plannedDate = plannedDate;
-  if (status) Trip.status = status;
-  if (startKm !== undefined) Trip.startKm = startKm;
-  if (endKm !== undefined) Trip.endKm = endKm;
-  if (fuelUsed !== undefined) Trip.fuelUsed = fuelUsed;
-  if (notes !== undefined) Trip.notes = notes;
+  if (driver) trip.driver = driver;
+  if (truck) trip.truck = truck;
+  if (trailer !== undefined) trip.trailer = trailer;
+  if (startLocation) trip.startLocation = startLocation;
+  if (endLocation) trip.endLocation = endLocation;
+  if (plannedDate) trip.plannedDate = plannedDate;
+  if (status) trip.status = status;
+  if (startKm !== undefined) trip.startKm = startKm;
+  if (endKm !== undefined) trip.endKm = endKm;
+  if (fuelUsed !== undefined) trip.fuelUsed = fuelUsed;
+  if (notes !== undefined) trip.notes = notes;
 
   // Recalculate total distance
-  if (Trip.startKm && Trip.endKm) {
-    Trip.totalDistance = Trip.endKm - Trip.startKm;
+  if (trip.startKm && trip.endKm) {
+    trip.totalDistance = trip.endKm - trip.startKm;
   }
 
-  await Trip.save();
-  await Trip.populate('driver truck trailer');
+  await trip.save();
+  await trip.populate('driver truck trailer');
 
   return successResponse(res, 200, "Trip updated successfully", trip);
 });
