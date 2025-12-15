@@ -3,10 +3,10 @@ import { AuthProvider } from './context/AuthContext';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-// المكونات
+// Components
 import PrivateRoute from './routes/PrivateRoute';
 
-// الصفحات
+// Pages
 import Login from './pages/auth/Login';
 import AdminDashboard from './pages/admin/Dashboard';
 
@@ -15,10 +15,10 @@ function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          {/* الصفحات العامة */}
+          {/* Public pages */}
           <Route path="/login" element={<Login />} />
 
-          {/* صفحات الأدمن */}
+          {/* Admin pages */}
           <Route
             path="/admin/dashboard"
             element={
@@ -28,31 +28,30 @@ function App() {
             }
           />
 
-          {/* الصفحة الافتراضية */}
+          {/* Default route */}
           <Route path="/" element={<Navigate to="/login" replace />} />
 
-          {/* صفحة 404 */}
+          {/* 404 page */}
           <Route
             path="*"
             element={
               <div className="min-h-screen flex items-center justify-center bg-beige">
                 <div className="text-center">
                   <h1 className="text-6xl font-bold text-primary mb-4">404</h1>
-                  <p className="text-xl text-gray-700">الصفحة غير موجودة</p>
+                  <p className="text-xl text-gray-700">Page not found</p>
                 </div>
               </div>
             }
           />
         </Routes>
 
-        {/* Toast للإشعارات */}
+        {/* Toast notifications */}
         <ToastContainer
           position="top-right"
-          autoClose={3000}
+          autoClose={5000}
           hideProgressBar={false}
           newestOnTop
           closeOnClick
-          rtl
           pauseOnFocusLoss
           draggable
           pauseOnHover

@@ -14,7 +14,7 @@ const DashboardLayout = ({ children }) => {
         {/* Sidebar */}
         <Sidebar role={user?.role} />
 
-        {/* المحتوى الرئيسي */}
+        {/* Main content */}
         <main className="flex-1 p-8">
           {children}
         </main>

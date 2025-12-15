@@ -12,24 +12,24 @@ import {
 } from 'react-icons/fa';
 
 const Sidebar = ({ role = 'admin' }) => {
-  // قائمة الروابط للأدمن
+  // Admin links
   const adminLinks = [
-    { path: '/admin/dashboard', icon: FaTachometerAlt, label: 'لوحة التحكم' },
-    { path: '/admin/users', icon: FaUsers, label: 'المستخدمين' },
-    { path: '/admin/trucks', icon: FaTruck, label: 'الشاحنات' },
-    { path: '/admin/trailers', icon: FaTrailer, label: 'المقطورات' },
-    { path: '/admin/trips', icon: FaRoute, label: 'الرحلات' },
-    { path: '/admin/fuel-logs', icon: FaGasPump, label: 'سجلات الوقود' },
-    { path: '/admin/maintenance', icon: FaTools, label: 'الصيانة' },
-    { path: '/admin/alerts', icon: FaExclamationTriangle, label: 'التنبيهات' },
+    { path: '/admin/dashboard', icon: FaTachometerAlt, label: 'Dashboard' },
+    { path: '/admin/users', icon: FaUsers, label: 'Users' },
+    { path: '/admin/trucks', icon: FaTruck, label: 'Trucks' },
+    { path: '/admin/trailers', icon: FaTrailer, label: 'Trailers' },
+    { path: '/admin/trips', icon: FaRoute, label: 'Trips' },
+    { path: '/admin/fuel-logs', icon: FaGasPump, label: 'Fuel Logs' },
+    { path: '/admin/maintenance', icon: FaTools, label: 'Maintenance' },
+    { path: '/admin/alerts', icon: FaExclamationTriangle, label: 'Alerts' },
   ];
 
-  // قائمة الروابط للسائق
+  // Driver links
   const driverLinks = [
-    { path: '/driver/trips', icon: FaRoute, label: 'رحلاتي' },
-    { path: '/driver/fuel-logs', icon: FaGasPump, label: 'سجلات الوقود' },
-    { path: '/driver/maintenance', icon: FaTools, label: 'الصيانة' },
-    { path: '/driver/alerts', icon: FaExclamationTriangle, label: 'التنبيهات' },
+    { path: '/driver/trips', icon: FaRoute, label: 'My Trips' },
+    { path: '/driver/fuel-logs', icon: FaGasPump, label: 'Fuel Logs' },
+    { path: '/driver/maintenance', icon: FaTools, label: 'Maintenance' },
+    { path: '/driver/alerts', icon: FaExclamationTriangle, label: 'Alerts' },
   ];
 
   const links = role === 'admin' ? adminLinks : driverLinks;
@@ -55,14 +55,14 @@ const Sidebar = ({ role = 'admin' }) => {
           ))}
         </nav>
 
-        {/* إعدادات في الأسفل */}
+        {/* Settings */}
         <div className="mt-8 pt-8 border-t border-gray-700">
           <NavLink
             to={`/${role}/settings`}
             className="flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-dark-light hover:text-white rounded-lg transition-all"
           >
             <FaCog className="text-xl" />
-            <span className="font-medium">الإعدادات</span>
+            <span className="font-medium">Settings</span>
           </NavLink>
         </div>
       </div>

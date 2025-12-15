@@ -1,65 +1,86 @@
-// رابط الـ Backend
-const BASE_URL = 'http://localhost:5000/api/v1';
+// Backend API URL from .env file
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
 
-// دالة لإرسال الطلبات للـ API
+// Function to send requests to the API
 const fetchAPI = async (endpoint, options = {}) => {
-  // جلب الـ Token من التخزين المحلي
+  // Get token from localStorage
   const token = localStorage.getItem('accessToken');
 
-  // إعداد الـ Headers
+  // Setup headers
   const headers = {
     'Content-Type': 'application/json',
     ...options.headers,
   };
 
-  // إضافة Token إذا كان موجود
+  // Add token if exists
   if (token) {
     headers.Authorization = `Bearer ${token}`;
   }
 
-  // إعداد الطلب
+  // Setup request config
   const config = {
     ...options,
     headers,
   };
 
   try {
-    // إرسال الطلب
+    // Send request
     const response = await fetch(`${BASE_URL}${endpoint}`, config);
 
-    // التحقق من الاستجابة
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({
-        message: 'حدث خطأ في الاتصال'
-      }));
+    // Parse response
+    const data = await response.json();
 
-      // إذا كان الخطأ 401 (غير مصرح) - تسجيل خروج تلقائي
+    // Check response
+    if (!response.ok) {
+      // If 401 error (Unauthorized)
       if (response.status === 401) {
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        window.location.href = '/login';
+        // Only redirect if NOT on login page and NOT a login request
+        const isLoginRequest = endpoint.includes('/auth/login');
+        const isOnLoginPage = window.location.pathname === '/login';
+
+        if (!isLoginRequest && !isOnLoginPage) {
+          // User's session expired, redirect to login
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('refreshToken');
+          window.location.href = '/login';
+        }
+        // If on login page or login request, just throw error (don't redirect)
       }
 
-      throw new Error(error.message || 'حدث خطأ');
+      // Create error object with all backend data
+      const error = new Error(data.message || 'An error occurred');
+      error.statusCode = response.status;
+      error.code = data.code;
+      error.errors = data.errors; // Validation errors from Joi
+      error.details = data.details;
+
+      throw error;
     }
 
-    // إرجاع البيانات
-    return await response.json();
+    // Return data
+    return data;
   } catch (error) {
+    // If it's a network error (not from backend)
+    if (!error.statusCode) {
+      const networkError = new Error('Network error. Please check your connection.');
+      networkError.statusCode = 0;
+      throw networkError;
+    }
+
     throw error;
   }
 };
 
-// دوال مساعدة لكل نوع طلب
+// Helper functions for each request type
 export const api = {
-  // GET - جلب البيانات
+  // GET - fetch data
   get: (endpoint) => {
     return fetchAPI(endpoint, {
       method: 'GET',
     });
   },
 
-  // POST - إضافة بيانات جديدة
+  // POST - create new data
   post: (endpoint, data) => {
     return fetchAPI(endpoint, {
       method: 'POST',
@@ -67,7 +88,7 @@ export const api = {
     });
   },
 
-  // PUT - تحديث كامل
+  // PUT - full update
   put: (endpoint, data) => {
     return fetchAPI(endpoint, {
       method: 'PUT',
@@ -75,7 +96,7 @@ export const api = {
     });
   },
 
-  // PATCH - تحديث جزئي
+  // PATCH - partial update
   patch: (endpoint, data) => {
     return fetchAPI(endpoint, {
       method: 'PATCH',
@@ -83,7 +104,7 @@ export const api = {
     });
   },
 
-  // DELETE - حذف
+  // DELETE - delete
   delete: (endpoint) => {
     return fetchAPI(endpoint, {
       method: 'DELETE',

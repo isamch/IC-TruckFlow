@@ -2,48 +2,48 @@ import DashboardLayout from '../../components/layout/DashboardLayout';
 import { FaTruck, FaUsers, FaRoute, FaExclamationTriangle } from 'react-icons/fa';
 
 const AdminDashboard = () => {
-  // بيانات تجريبية للإحصائيات
+  // Sample statistics data
   const stats = [
     {
-      title: 'إجمالي الشاحنات',
+      title: 'Total Trucks',
       value: '24',
       icon: FaTruck,
       color: 'bg-blue-500',
-      change: '+2 هذا الشهر'
+      change: '+2 this month'
     },
     {
-      title: 'السائقين النشطين',
+      title: 'Active Drivers',
       value: '18',
       icon: FaUsers,
       color: 'bg-green-500',
-      change: '+3 هذا الأسبوع'
+      change: '+3 this week'
     },
     {
-      title: 'الرحلات الجارية',
+      title: 'Ongoing Trips',
       value: '7',
       icon: FaRoute,
       color: 'bg-primary',
-      change: '5 قيد الانتظار'
+      change: '5 pending'
     },
     {
-      title: 'تنبيهات الصيانة',
+      title: 'Maintenance Alerts',
       value: '3',
       icon: FaExclamationTriangle,
       color: 'bg-red-500',
-      change: 'يتطلب اهتمام'
+      change: 'Requires attention'
     },
   ];
 
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        {/* العنوان */}
+        {/* Title */}
         <div>
-          <h1 className="text-3xl font-bold text-dark">لوحة التحكم</h1>
-          <p className="text-gray-600 mt-1">مرحباً بك في نظام إدارة الأسطول</p>
+          <h1 className="text-3xl font-bold text-dark">Dashboard</h1>
+          <p className="text-gray-600 mt-1">Welcome to Fleet Management System</p>
         </div>
 
-        {/* بطاقات الإحصائيات */}
+        {/* Statistics cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {stats.map((stat, index) => (
             <div
@@ -70,76 +70,76 @@ const AdminDashboard = () => {
           ))}
         </div>
 
-        {/* الرحلات الأخيرة */}
+        {/* Recent trips */}
         <div className="bg-white rounded-xl shadow-md p-6">
           <h2 className="text-xl font-bold text-dark mb-4">
-            الرحلات الأخيرة
+            Recent Trips
           </h2>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-beige">
                 <tr>
-                  <th className="px-4 py-3 text-right text-sm font-semibold text-dark">
-                    السائق
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-dark">
+                    Driver
                   </th>
-                  <th className="px-4 py-3 text-right text-sm font-semibold text-dark">
-                    الشاحنة
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-dark">
+                    Truck
                   </th>
-                  <th className="px-4 py-3 text-right text-sm font-semibold text-dark">
-                    المسار
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-dark">
+                    Route
                   </th>
-                  <th className="px-4 py-3 text-right text-sm font-semibold text-dark">
-                    الحالة
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-dark">
+                    Status
                   </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {/* بيانات تجريبية */}
+                {/* Sample data */}
                 <tr className="hover:bg-gray-50">
                   <td className="px-4 py-3 text-sm text-gray-700">
-                    أحمد محمد
+                    Ahmed Mohamed
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-700">
                     ABC-1234
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-700">
-                    الدار البيضاء → مراكش
+                    Casablanca → Marrakech
                   </td>
                   <td className="px-4 py-3">
                     <span className="px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
-                      جارية
+                      In Progress
                     </span>
                   </td>
                 </tr>
                 <tr className="hover:bg-gray-50">
                   <td className="px-4 py-3 text-sm text-gray-700">
-                    سعيد العلوي
+                    Said Alaoui
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-700">
                     XYZ-5678
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-700">
-                    الرباط → طنجة
+                    Rabat → Tangier
                   </td>
                   <td className="px-4 py-3">
                     <span className="px-3 py-1 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded-full">
-                      قيد الانتظار
+                      Pending
                     </span>
                   </td>
                 </tr>
                 <tr className="hover:bg-gray-50">
                   <td className="px-4 py-3 text-sm text-gray-700">
-                    خالد بنعلي
+                    Khalid Benali
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-700">
                     DEF-9012
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-700">
-                    أكادير → الصويرة
+                    Agadir → Essaouira
                   </td>
                   <td className="px-4 py-3">
                     <span className="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full">
-                      منتهية
+                      Completed
                     </span>
                   </td>
                 </tr>
@@ -148,31 +148,31 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {/* تنبيهات الصيانة */}
+        {/* Urgent maintenance alerts */}
         <div className="bg-white rounded-xl shadow-md p-6">
           <h2 className="text-xl font-bold text-dark mb-4">
-            تنبيهات الصيانة العاجلة
+            Urgent Maintenance Alerts
           </h2>
           <div className="space-y-3">
-            <div className="flex items-center gap-3 p-4 bg-red-50 border-r-4 border-red-500 rounded-lg">
+            <div className="flex items-center gap-3 p-4 bg-red-50 border-l-4 border-red-500 rounded-lg">
               <FaExclamationTriangle className="text-red-500 text-xl" />
               <div>
                 <p className="font-semibold text-dark">
-                  شاحنة ABC-1234 - تغيير الزيت
+                  Truck ABC-1234 - Oil Change
                 </p>
                 <p className="text-sm text-gray-600">
-                  متأخر بـ 500 كم
+                  Overdue by 500 km
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-3 p-4 bg-yellow-50 border-r-4 border-yellow-500 rounded-lg">
+            <div className="flex items-center gap-3 p-4 bg-yellow-50 border-l-4 border-yellow-500 rounded-lg">
               <FaExclamationTriangle className="text-yellow-500 text-xl" />
               <div>
                 <p className="font-semibold text-dark">
-                  شاحنة XYZ-5678 - فحص الإطارات
+                  Truck XYZ-5678 - Tire Inspection
                 </p>
                 <p className="text-sm text-gray-600">
-                  مطلوب خلال 200 كم
+                  Required within 200 km
                 </p>
               </div>
             </div>
