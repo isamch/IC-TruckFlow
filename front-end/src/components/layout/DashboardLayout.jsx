@@ -1,8 +1,9 @@
+import { Outlet } from 'react-router-dom';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
 import { useAuth } from '../../hooks/useAuth';
 
-const DashboardLayout = ({ children }) => {
+const DashboardLayout = () => {
   const { user } = useAuth();
 
   return (
@@ -16,7 +17,7 @@ const DashboardLayout = ({ children }) => {
 
         {/* Main content */}
         <main className="flex-1 p-8">
-          {children}
+          <Outlet />
         </main>
       </div>
     </div>

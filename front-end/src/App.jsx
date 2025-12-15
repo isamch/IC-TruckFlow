@@ -5,10 +5,19 @@ import 'react-toastify/dist/ReactToastify.css';
 
 // Components
 import PrivateRoute from './routes/PrivateRoute';
+import DashboardLayout from './components/layout/DashboardLayout';
 
 // Pages
 import Login from './pages/auth/Login';
 import AdminDashboard from './pages/admin/Dashboard';
+import Users from './pages/admin/Users';
+import Trucks from './pages/admin/Trucks';
+import TruckDetails from './pages/admin/TruckDetails';
+import Trailers from './pages/admin/Trailers';
+import Trips from './pages/admin/Trips';
+import FuelLogs from './pages/admin/FuelLogs';
+import Maintenance from './pages/admin/Maintenance';
+import Alerts from './pages/admin/Alerts';
 
 function App() {
   return (
@@ -18,15 +27,25 @@ function App() {
           {/* Public pages */}
           <Route path="/login" element={<Login />} />
 
-          {/* Admin pages */}
+          {/* Admin pages - Nested routes with DashboardLayout */}
           <Route
-            path="/admin/dashboard"
+            path="/admin"
             element={
               <PrivateRoute allowedRoles={['admin']}>
-                <AdminDashboard />
+                <DashboardLayout />
               </PrivateRoute>
             }
-          />
+          >
+            <Route path="dashboard" element={<AdminDashboard />} />
+            <Route path="users" element={<Users />} />
+            <Route path="trucks" element={<Trucks />} />
+            <Route path="trucks/:id" element={<TruckDetails />} />
+            <Route path="trailers" element={<Trailers />} />
+            <Route path="trips" element={<Trips />} />
+            <Route path="fuel-logs" element={<FuelLogs />} />
+            <Route path="maintenance" element={<Maintenance />} />
+            <Route path="alerts" element={<Alerts />} />
+          </Route>
 
           {/* Default route */}
           <Route path="/" element={<Navigate to="/login" replace />} />

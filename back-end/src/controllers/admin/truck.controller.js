@@ -130,8 +130,12 @@ export const updateTruck = asyncHandler(async (req, res, next) => {
   }
 
   // check if registration number is being changed and already exists
-  if (registrationNumber && registrationNumber !== Truck.registrationNumber) {
-    const existingTruck = await Truck.findOne({ registrationNumber });
+  if (registrationNumber && registrationNumber !== truck.registrationNumber) {
+    const existingTruck = await Truck.findOne({
+      registrationNumber,
+      _id: { $ne: req.params.id } // ignore the same truck
+    });
+
     if (existingTruck) {
       return next(ApiError.badRequest('Registration number already exists'));
     }
