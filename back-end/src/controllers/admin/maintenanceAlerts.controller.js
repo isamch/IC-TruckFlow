@@ -27,11 +27,11 @@ export const getMaintenanceAlerts = asyncHandler(async (req, res, next) => {
         allAlerts.push({
           ...alert,
           truck: {
-            _id: Truck._id.toString(),
-            registrationNumber: Truck.registrationNumber,
-            brand: Truck.brand,
-            model: Truck.model,
-            currentKm: Truck.currentKm,
+            _id: truck._id.toString(),
+            registrationNumber: truck.registrationNumber,
+            brand: truck.brand,
+            model: truck.model,
+            currentKm: truck.currentKm,
           }
         });
       });

@@ -16,8 +16,8 @@ export const getMyMaintenanceLogs = asyncHandler(async (req, res, next) => {
   const { page, perPage, skip } = getPagination(req.query);
 
   // Get trips for this driver
-  const myTrips = await Trip.find({ driver: req.User.id }).select('_id');
-  const tripIds = myTrips.map(trip => Trip._id);
+  const myTrips = await Trip.find({ driver: req.user.userId }).select('_id');
+  const tripIds = myTrips.map(trip => trip._id);
 
   const maintenanceLogs = await MaintenanceLog.find({ trip: { $in: tripIds } })
     .populate('truck', 'registrationNumber brand model')
@@ -52,9 +52,9 @@ export const getMyMaintenanceLogById = asyncHandler(async (req, res, next) => {
   }
 
   // Check if this maintenance log belongs to driver's trip
-  if (MaintenanceLog.trip) {
-    const trip = await Trip.findById(MaintenanceLog.Trip._id);
-    if (Trip.driver.toString() !== req.User.id) {
+  if (maintenanceLog.trip) {
+    const trip = await Trip.findById(maintenanceLog.trip);
+    if (trip.driver.toString() !== req.user.userId) {
       return next(ApiError.forbidden("You don't have access to this maintenance log"));
     }
   } else {
@@ -78,7 +78,7 @@ export const addMaintenanceLog = asyncHandler(async (req, res, next) => {
   // Validate trip exists and belongs to driver
   const tripExists = await Trip.findOne({
     _id: trip,
-    driver: req.User.id
+    driver: req.user.userId
   });
 
   if (!tripExists) {
@@ -128,24 +128,24 @@ export const updateMyMaintenanceLog = asyncHandler(async (req, res, next) => {
   }
 
   // Check if this maintenance log belongs to driver's trip
-  if (!MaintenanceLog.trip) {
+  if (!maintenanceLog.trip) {
     return next(ApiError.forbidden("You don't have access to this maintenance log"));
   }
 
-  const trip = await Trip.findById(MaintenanceLog.trip);
-  if (!trip || Trip.driver.toString() !== req.User.id) {
+  const trip = await Trip.findById(maintenanceLog.trip);
+  if (!trip || trip.driver.toString() !== req.user.userId) {
     return next(ApiError.forbidden("You don't have access to this maintenance log"));
   }
 
   // Update fields
-  if (type) MaintenanceLog.type = type;
-  if (description !== undefined) MaintenanceLog.description = description;
-  if (cost !== undefined) MaintenanceLog.cost = cost;
-  if (date) MaintenanceLog.date = date;
+  if (type) maintenanceLog.type = type;
+  if (description !== undefined) maintenanceLog.description = description;
+  if (cost !== undefined) maintenanceLog.cost = cost;
+  if (date) maintenanceLog.date = date;
 
-  await MaintenanceLog.save();
+  await maintenanceLog.save();
 
-  await MaintenanceLog.populate('truck trip');
+  await maintenanceLog.populate('truck trip');
 
   return successResponse(res, 200, "Maintenance log updated successfully", maintenanceLog);
 });
@@ -166,21 +166,21 @@ export const deleteMyMaintenanceLog = asyncHandler(async (req, res, next) => {
   }
 
   // Check if this maintenance log belongs to driver's trip
-  if (!MaintenanceLog.trip) {
+  if (!maintenanceLog.trip) {
     return next(ApiError.forbidden("You don't have access to this maintenance log"));
   }
 
-  const trip = await Trip.findById(MaintenanceLog.trip);
-  if (!trip || Trip.driver.toString() !== req.User.id) {
+  const trip = await Trip.findById(maintenanceLog.trip);
+  if (!trip || trip.driver.toString() !== req.user.userId) {
     return next(ApiError.forbidden("You don't have access to this maintenance log"));
   }
 
   // Remove from trip's maintenanceLogs array
-  await Trip.findByIdAndUpdate(MaintenanceLog.trip, {
-    $pull: { maintenanceLogs: MaintenanceLog._id }
+  await Trip.findByIdAndUpdate(maintenanceLog.trip, {
+    $pull: { maintenanceLogs: maintenanceLog._id }
   });
 
-  await MaintenanceLog.deleteOne();
+  await maintenanceLog.deleteOne();
 
   return successResponse(res, 200, "Maintenance log deleted successfully");
 });

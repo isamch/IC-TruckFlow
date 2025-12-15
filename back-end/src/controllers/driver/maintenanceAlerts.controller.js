@@ -12,7 +12,7 @@ import { calculateTruckMaintenanceAlerts } from "../../utils/maintenanceHelper.j
 export const getMyTruckAlerts = asyncHandler(async (req, res, next) => {
   // Get driver's assigned trips (to_do or in_progress)
   const assignedTrips = await Trip.find({
-    driver: req.User.id,
+    driver: req.user.userId,
     status: { $in: ['to_do', 'in_progress'] }
   })
     .populate('truck')
@@ -29,7 +29,7 @@ export const getMyTruckAlerts = asyncHandler(async (req, res, next) => {
   function getUniqueTrucks(trips) {
     const uniqueTrucks = {};
     trips.forEach(trip => {
-      uniqueTrucks[Trip.Truck._id] = Trip.truck;
+      uniqueTrucks[trip.truck._id] = trip.truck;
     });
     return Object.values(uniqueTrucks);
   }

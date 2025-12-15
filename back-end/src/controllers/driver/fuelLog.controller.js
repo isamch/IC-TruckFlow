@@ -16,8 +16,9 @@ export const getMyFuelLogs = asyncHandler(async (req, res, next) => {
   const { page, perPage, skip } = getPagination(req.query);
 
   // Get trips for this driver
-  const myTrips = await Trip.find({ driver: req.User.id }).select('_id');
-  const tripIds = myTrips.map(trip => Trip._id);
+  const myTrips = await Trip.find({ driver: req.user.userId }).select('_id');
+
+  const tripIds = myTrips.map(trip => trip._id);
 
 
   const fuelLogs = await FuelLog.find({ trip: { $in: tripIds } })
@@ -57,8 +58,8 @@ export const getMyFuelLogById = asyncHandler(async (req, res, next) => {
   }
 
   // Check if this fuel log belongs to driver's trip
-  const trip = await Trip.findById(FuelLog.Trip._id);
-  if (Trip.driver.toString() !== req.User.id) {
+  const trip = await Trip.findById(fuelLog.trip._id);
+  if (trip.driver.toString() !== req.user.userId) {
     return next(ApiError.forbidden("You don't have access to this fuel log"));
   }
 
@@ -78,7 +79,7 @@ export const addFuelLog = asyncHandler(async (req, res, next) => {
   // Validate trip exists and belongs to driver
   const tripExists = await Trip.findOne({
     _id: trip,
-    driver: req.User.id
+    driver: req.user.userId
   });
 
   if (!tripExists) {

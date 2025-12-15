@@ -125,7 +125,7 @@ export const updateMaintenanceLog = asyncHandler(async (req, res, next) => {
   }
 
   // Validate truck if being changed
-  if (truck && truck !== MaintenanceLog.Truck.toString()) {
+  if (truck && truck !== maintenanceLog.truck.toString()) {
     const truckExists = await Truck.findById(truck);
     if (!truckExists) {
       return next(ApiError.notFound('Truck not found'));
@@ -133,7 +133,7 @@ export const updateMaintenanceLog = asyncHandler(async (req, res, next) => {
   }
 
   // Validate trip if being changed
-  if (trip !== undefined && trip !== MaintenanceLog.trip?.toString()) {
+  if (trip !== undefined && trip !== maintenanceLog.trip?.toString()) {
     if (trip !== null) {
       const tripExists = await Trip.findById(trip);
       if (!tripExists) {
@@ -142,31 +142,31 @@ export const updateMaintenanceLog = asyncHandler(async (req, res, next) => {
     }
 
     // Remove from old trip if exists
-    if (MaintenanceLog.trip) {
-      await Trip.findByIdAndUpdate(MaintenanceLog.trip, {
-        $pull: { maintenanceLogs: MaintenanceLog._id }
+    if (maintenanceLog.trip) {
+      await Trip.findByIdAndUpdate(maintenanceLog.trip, {
+        $pull: { maintenanceLogs: maintenanceLog._id }
       });
     }
 
     // Add to new trip if provided
     if (trip) {
       await Trip.findByIdAndUpdate(trip, {
-        $push: { maintenanceLogs: MaintenanceLog._id }
+        $push: { maintenanceLogs: maintenanceLog._id }
       });
     }
   }
 
   // Update fields
-  if (truck) MaintenanceLog.truck = truck;
-  if (trip !== undefined) MaintenanceLog.trip = trip;
-  if (type) MaintenanceLog.type = type;
-  if (description !== undefined) MaintenanceLog.description = description;
-  if (cost !== undefined) MaintenanceLog.cost = cost;
-  if (date) MaintenanceLog.date = date;
+  if (truck) maintenanceLog.truck = truck;
+  if (trip !== undefined) maintenanceLog.trip = trip;
+  if (type) maintenanceLog.type = type;
+  if (description !== undefined) maintenanceLog.description = description;
+  if (cost !== undefined) maintenanceLog.cost = cost;
+  if (date) maintenanceLog.date = date;
 
-  await MaintenanceLog.save();
+  await maintenanceLog.save();
 
-  await MaintenanceLog.populate('truck trip');
+  await maintenanceLog.populate('truck trip');
 
   return successResponse(res, 200, "Maintenance log updated successfully", maintenanceLog);
 });
@@ -188,13 +188,13 @@ export const deleteMaintenanceLog = asyncHandler(async (req, res, next) => {
   }
 
   // Remove from trip's maintenanceLogs array if exists
-  if (MaintenanceLog.trip) {
-    await Trip.findByIdAndUpdate(MaintenanceLog.trip, {
-      $pull: { maintenanceLogs: MaintenanceLog._id }
+  if (maintenanceLog.trip) {
+    await Trip.findByIdAndUpdate(maintenanceLog.trip, {
+      $pull: { maintenanceLogs: maintenanceLog._id }
     });
   }
 
-  await MaintenanceLog.deleteOne();
+  await maintenanceLog.deleteOne();
 
   return successResponse(res, 200, "Maintenance log deleted successfully");
 });
