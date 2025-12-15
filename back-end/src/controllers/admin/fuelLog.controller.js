@@ -128,38 +128,38 @@ export const updateFuelLog = asyncHandler(async (req, res, next) => {
   }
 
   // Validate trip if being changed
-  if (trip && trip !== FuelLog.Trip.toString()) {
+  if (trip && trip !== fuelLog.trip.toString()) {
     const tripExists = await Trip.findById(trip);
     if (!tripExists) {
       return next(ApiError.notFound('Trip not found'));
     }
 
     // Remove from old trip
-    await Trip.findByIdAndUpdate(FuelLog.trip, {
-      $pull: { fuelLogs: FuelLog._id }
+    await Trip.findByIdAndUpdate(fuelLog.trip, {
+      $pull: { fuelLogs: fuelLog._id }
     });
 
     // Add to new trip
     await Trip.findByIdAndUpdate(trip, {
-      $push: { fuelLogs: FuelLog._id }
+      $push: { fuelLogs: fuelLog._id }
     });
   }
 
   // Update fields
-  if (trip) FuelLog.trip = trip;
-  if (liters !== undefined) FuelLog.liters = liters;
-  if (pricePerLiter !== undefined) FuelLog.pricePerLiter = pricePerLiter;
-  if (stationName !== undefined) FuelLog.stationName = stationName;
-  if (timestamp) FuelLog.timestamp = timestamp;
+  if (trip) fuelLog.trip = trip;
+  if (liters !== undefined) fuelLog.liters = liters;
+  if (pricePerLiter !== undefined) fuelLog.pricePerLiter = pricePerLiter;
+  if (stationName !== undefined) fuelLog.stationName = stationName;
+  if (timestamp) fuelLog.timestamp = timestamp;
 
   // Recalculate total cost
-  if (FuelLog.liters && FuelLog.pricePerLiter) {
-    FuelLog.totalCost = FuelLog.liters * FuelLog.pricePerLiter;
+  if (fuelLog.liters && fuelLog.pricePerLiter) {
+    fuelLog.totalCost = fuelLog.liters * fuelLog.pricePerLiter;
   }
 
-  await FuelLog.save();
+  await fuelLog.save();
 
-  await FuelLog.populate({
+  await fuelLog.populate({
     path: 'trip',
     populate: [
       { path: 'driver', select: 'fullname email' },
@@ -185,11 +185,11 @@ export const deleteFuelLog = asyncHandler(async (req, res, next) => {
   }
 
   // Remove from trip's fuelLogs array
-  await Trip.findByIdAndUpdate(FuelLog.trip, {
-    $pull: { fuelLogs: FuelLog._id }
+  await Trip.findByIdAndUpdate(fuelLog.trip, {
+    $pull: { fuelLogs: fuelLog._id }
   });
 
-  await FuelLog.deleteOne();
+  await fuelLog.deleteOne();
 
   return successResponse(res, 200, "Fuel log deleted successfully");
 });
