@@ -93,7 +93,7 @@ export const updateTrailer = asyncHandler(async (req, res, next) => {
   }
 
   // Check if serial number is being changed and already exists
-  if (serialNumber && serialNumber !== Trailer.serialNumber) {
+  if (serialNumber && serialNumber !== trailer.serialNumber) {
     const existingTrailer = await Trailer.findOne({ serialNumber });
     if (existingTrailer) {
       return next(ApiError.badRequest('Serial number already exists'));
@@ -101,13 +101,13 @@ export const updateTrailer = asyncHandler(async (req, res, next) => {
   }
 
   // Update fields
-  if (serialNumber) Trailer.serialNumber = serialNumber;
-  if (type !== undefined) Trailer.type = type;
-  if (maxLoadKg !== undefined) Trailer.maxLoadKg = maxLoadKg;
-  if (status) Trailer.status = status;
-  if (lastCheckDate !== undefined) Trailer.lastCheckDate = lastCheckDate;
+  if (serialNumber) trailer.serialNumber = serialNumber;
+  if (type !== undefined) trailer.type = type;
+  if (maxLoadKg !== undefined) trailer.maxLoadKg = maxLoadKg;
+  if (status) trailer.status = status;
+  if (lastCheckDate !== undefined) trailer.lastCheckDate = lastCheckDate;
 
-  await Trailer.save();
+  await trailer.save();
 
   return successResponse(res, 200, "Trailer updated successfully", trailer);
 });
@@ -149,8 +149,8 @@ export const updateTrailerStatus = asyncHandler(async (req, res, next) => {
     return next(ApiError.badRequest('Invalid status'));
   }
 
-  Trailer.status = status;
-  await Trailer.save();
+  trailer.status = status;
+  await trailer.save();
 
   return successResponse(res, 200, "Trailer status updated successfully", trailer);
 });
