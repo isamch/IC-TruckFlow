@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Modal from '../../components/common/Modal';
+import ConfirmDialog from '../../components/common/ConfirmDialog';
 import Pagination from '../../components/common/Pagination';
 import { LoadingSpinner } from '../../components/common';
 import TruckForm from '../../components/trucks/TruckForm';
@@ -23,6 +24,8 @@ const Trucks = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTruck, setSelectedTruck] = useState(null);
   const [formLoading, setFormLoading] = useState(false);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [truckToDelete, setTruckToDelete] = useState(null);
 
   // Get current page from URL
   const currentPage = parseInt(searchParams.get('page')) || 1;
@@ -89,15 +92,21 @@ const Trucks = () => {
     }
   };
 
-  // Handle delete truck
-  const handleDelete = async (truck) => {
-    if (!window.confirm(`Are you sure you want to delete truck ${truck.registrationNumber}?`)) {
-      return;
-    }
+  // Handle delete truck - open confirm dialog
+  const handleDeleteClick = (truck) => {
+    setTruckToDelete(truck);
+    setIsConfirmOpen(true);
+  };
+
+  // Confirm delete truck
+  const confirmDelete = async () => {
+    if (!truckToDelete) return;
 
     try {
-      await deleteTruck(truck._id);
+      await deleteTruck(truckToDelete._id);
       showSuccessToast('Truck deleted successfully!');
+      setIsConfirmOpen(false);
+      setTruckToDelete(null);
       fetchTrucks(currentPage); // Refresh current page
     } catch (error) {
       const errorData = handleApiError(error);
@@ -249,7 +258,7 @@ const Trucks = () => {
                           <FaEdit className="text-lg" />
                         </button>
                         <button
-                          onClick={() => handleDelete(truck)}
+                          onClick={() => handleDeleteClick(truck)}
                           className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                           title="Delete"
                         >
@@ -288,6 +297,21 @@ const Trucks = () => {
           loading={formLoading}
         />
       </Modal>
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={isConfirmOpen}
+        onClose={() => {
+          setIsConfirmOpen(false);
+          setTruckToDelete(null);
+        }}
+        onConfirm={confirmDelete}
+        title="Delete Truck"
+        message={`Are you sure you want to delete truck "${truckToDelete?.registrationNumber}"? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="danger"
+      />
     </div>
   );
 };

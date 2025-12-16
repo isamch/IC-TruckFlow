@@ -62,7 +62,7 @@ export const handleApiError = (error) => {
 export const showErrorToast = (message) => {
   toast.error(message, {
     position: 'top-right',
-    autoClose: 5000,
+    autoClose: 1000,
     hideProgressBar: false,
     closeOnClick: true,
     pauseOnHover: true,
@@ -77,7 +77,7 @@ export const showErrorToast = (message) => {
 export const showSuccessToast = (message) => {
   toast.success(message, {
     position: 'top-right',
-    autoClose: 3000,
+    autoClose: 800,
     hideProgressBar: false,
     closeOnClick: true,
     pauseOnHover: true,

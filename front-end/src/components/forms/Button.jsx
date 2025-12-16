@@ -19,6 +19,7 @@ const Button = ({
     secondary: 'btn-secondary',
     outline: 'btn-outline',
     danger: 'bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300',
+    warning: 'bg-yellow-600 hover:bg-yellow-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300',
     success: 'bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300',
   };
 
