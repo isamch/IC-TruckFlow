@@ -4,7 +4,7 @@ import Modal from '../../components/common/Modal';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
 import { LoadingScreen } from '../../components/common';
 import TruckForm from '../../components/trucks/TruckForm';
-import TireForm from '../../components/trucks/TireForm';
+import AssignTireForm from '../../components/trucks/AssignTireForm';
 import { Button, Select } from '../../components/forms';
 import {
   FaTruck,
@@ -112,13 +112,17 @@ const TruckDetails = () => {
     }
   };
 
-  // Handle add tire
-  const handleAddTire = async (tireData) => {
+  // Handle assign tire
+  const handleAssignTire = async (formData) => {
     try {
       setTireLoading(true);
-      const response = await addTireToTruck(id, tireData);
+      // addTireToTruck expects: { tireId, position }
+      const response = await addTireToTruck(id, {
+        tireId: formData.tireId,
+        position: formData.position
+      });
       setTruck(response.data);
-      showSuccessToast('Tire added successfully!');
+      showSuccessToast('Tire assigned successfully!');
       setIsAddTireModalOpen(false);
     } catch (error) {
       const errorData = handleApiError(error);
@@ -309,37 +313,66 @@ const TruckDetails = () => {
       </div>
 
       {/* Maintenance Alerts */}
-      {maintenanceStatus && maintenanceStatus.alerts && maintenanceStatus.alerts.length > 0 && (
+      {maintenanceStatus && maintenanceStatus.maintenance && maintenanceStatus.maintenance.totalAlerts > 0 && (
         <div className="bg-white rounded-xl shadow-md p-6">
-          <h2 className="text-xl font-bold text-dark mb-4 flex items-center gap-2">
-            <FaExclamationTriangle className="text-yellow-600" />
-            Maintenance Alerts
-          </h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-dark flex items-center gap-2">
+              <FaExclamationTriangle className="text-yellow-600" />
+              Maintenance Alerts
+            </h2>
+            <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-semibold">
+              {maintenanceStatus.maintenance.totalAlerts} Alert{maintenanceStatus.maintenance.totalAlerts > 1 ? 's' : ''}
+            </span>
+          </div>
           <div className="space-y-3">
-            {maintenanceStatus.alerts.map((alert, index) => (
+            {maintenanceStatus.maintenance.alerts.map((alert, index) => (
               <div
                 key={index}
-                className={`p-4 rounded-lg border-l-4 ${alert.priority === 'critical'
+                className={`p-4 rounded-lg border-l-4 ${alert.severity === 'critical'
                   ? 'bg-red-50 border-red-500'
-                  : alert.priority === 'high'
+                  : alert.severity === 'high'
                     ? 'bg-yellow-50 border-yellow-500'
                     : 'bg-blue-50 border-blue-500'
                   }`}
               >
                 <div className="flex items-start justify-between">
-                  <div>
-                    <h3 className="font-semibold text-dark">{alert.type}</h3>
-                    <p className="text-sm text-gray-600 mt-1">{alert.message}</p>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <h3 className="font-semibold text-dark capitalize">
+                        {alert.maintenanceType} Maintenance
+                      </h3>
+                      {alert.overdue && (
+                        <span className="px-2 py-0.5 bg-red-600 text-white text-xs font-bold rounded">
+                          OVERDUE
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm text-gray-700 mb-2">{alert.message}</p>
+                    <div className="flex items-center gap-4 text-xs text-gray-600">
+                      <span className="flex items-center gap-1">
+                        <strong>Type:</strong> {alert.alertType === 'km' ? 'Mileage' : 'Time'}
+                      </span>
+                      {alert.overdueKm && (
+                        <span className="flex items-center gap-1">
+                          <strong>Overdue:</strong> {alert.overdueKm.toLocaleString()} km
+                        </span>
+                      )}
+                      {alert.overdueMonths && (
+                        <span className="flex items-center gap-1">
+                          <strong>Overdue:</strong> {alert.overdueMonths} month{alert.overdueMonths > 1 ? 's' : ''}
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <span
-                    className={`text-xs font-semibold px-2 py-1 rounded ${alert.priority === 'critical'
+                    className={`text-xs font-semibold px-3 py-1 rounded-full uppercase ${alert.severity === 'critical'
                       ? 'bg-red-100 text-red-700'
-                      : alert.priority === 'high'
+                      : alert.severity === 'high'
                         ? 'bg-yellow-100 text-yellow-700'
                         : 'bg-blue-100 text-blue-700'
                       }`}
                   >
-                    {alert.priority}
+                    {alert.severity}
                   </span>
                 </div>
               </div>
@@ -361,7 +394,7 @@ const TruckDetails = () => {
             onClick={() => setIsAddTireModalOpen(true)}
             size="sm"
           >
-            Add Tire
+            Assign Tire
           </Button>
         </div>
         {truck.tires && truck.tires.length > 0 ? (
@@ -429,15 +462,15 @@ const TruckDetails = () => {
         />
       </Modal>
 
-      {/* Add Tire Modal */}
+      {/* Assign Tire Modal */}
       <Modal
         isOpen={isAddTireModalOpen}
         onClose={() => setIsAddTireModalOpen(false)}
-        title="Add Tire"
+        title="Assign Tire to Truck"
         size="md"
       >
-        <TireForm
-          onSubmit={handleAddTire}
+        <AssignTireForm
+          onSubmit={handleAssignTire}
           onCancel={() => setIsAddTireModalOpen(false)}
           loading={tireLoading}
         />
