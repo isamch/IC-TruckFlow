@@ -11,6 +11,8 @@ import { calculateTruckMaintenanceAlerts } from "../../utils/maintenanceHelper.j
  * @access  Private/Admin
  */
 export const getMaintenanceAlerts = asyncHandler(async (req, res, next) => {
+
+
   const allAlerts = [];
 
   // Get all trucks
