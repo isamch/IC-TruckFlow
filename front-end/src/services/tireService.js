@@ -11,7 +11,7 @@ export const getAvailableTires = async () => {
 };
 
 // Get all tires
-export const getAllTires = async (page = 1, perPage = 5) => {
+export const getAllTires = async (page = 1, perPage = 10) => {
   return await api.get(`/admin/tires?page=${page}&perPage=${perPage}`);
 };
 
