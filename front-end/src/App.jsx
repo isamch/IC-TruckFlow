@@ -16,6 +16,8 @@ import TruckDetails from './pages/admin/TruckDetails';
 import Tires from './pages/admin/Tires';
 import Trailers from './pages/admin/Trailers';
 import Trips from './pages/admin/Trips';
+import TripDetails from './pages/admin/TripDetails';
+import TripForm from './pages/admin/TripForm';
 import FuelLogs from './pages/admin/FuelLogs';
 import Maintenance from './pages/admin/Maintenance';
 import Alerts from './pages/admin/Alerts';
@@ -44,6 +46,9 @@ function App() {
             <Route path="tires" element={<Tires />} />
             <Route path="trailers" element={<Trailers />} />
             <Route path="trips" element={<Trips />} />
+            <Route path="trips/create" element={<TripForm />} />
+            <Route path="trips/edit/:id" element={<TripForm />} />
+            <Route path="trips/:id" element={<TripDetails />} />
             <Route path="fuel-logs" element={<FuelLogs />} />
             <Route path="maintenance" element={<Maintenance />} />
             <Route path="alerts" element={<Alerts />} />
