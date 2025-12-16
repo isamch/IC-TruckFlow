@@ -8,7 +8,8 @@ import {
   FaGasPump,
   FaTools,
   FaExclamationTriangle,
-  FaCog
+  FaCog,
+  FaCircle
 } from 'react-icons/fa';
 
 const Sidebar = ({ role = 'admin' }) => {
@@ -17,6 +18,7 @@ const Sidebar = ({ role = 'admin' }) => {
     { path: '/admin/dashboard', icon: FaTachometerAlt, label: 'Dashboard' },
     { path: '/admin/users', icon: FaUsers, label: 'Users' },
     { path: '/admin/trucks', icon: FaTruck, label: 'Trucks' },
+    { path: '/admin/tires', icon: FaCircle, label: 'Tires' },
     { path: '/admin/trailers', icon: FaTrailer, label: 'Trailers' },
     { path: '/admin/trips', icon: FaRoute, label: 'Trips' },
     { path: '/admin/fuel-logs', icon: FaGasPump, label: 'Fuel Logs' },

@@ -13,6 +13,7 @@ import AdminDashboard from './pages/admin/Dashboard';
 import Users from './pages/admin/Users';
 import Trucks from './pages/admin/Trucks';
 import TruckDetails from './pages/admin/TruckDetails';
+import Tires from './pages/admin/Tires';
 import Trailers from './pages/admin/Trailers';
 import Trips from './pages/admin/Trips';
 import FuelLogs from './pages/admin/FuelLogs';
@@ -40,6 +41,7 @@ function App() {
             <Route path="users" element={<Users />} />
             <Route path="trucks" element={<Trucks />} />
             <Route path="trucks/:id" element={<TruckDetails />} />
+            <Route path="tires" element={<Tires />} />
             <Route path="trailers" element={<Trailers />} />
             <Route path="trips" element={<Trips />} />
             <Route path="fuel-logs" element={<FuelLogs />} />
