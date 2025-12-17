@@ -22,6 +22,12 @@ import FuelLogs from './pages/admin/FuelLogs';
 import Maintenance from './pages/admin/Maintenance';
 import Alerts from './pages/admin/Alerts';
 
+// Driver Pages
+import DriverDashboard from './pages/driver/Dashboard';
+import DriverTrips from './pages/driver/Trips';
+import StartTrip from './pages/driver/StartTrip';
+import FinishTrip from './pages/driver/FinishTrip';
+
 function App() {
   return (
     <AuthProvider>
@@ -52,6 +58,22 @@ function App() {
             <Route path="fuel-logs" element={<FuelLogs />} />
             <Route path="maintenance" element={<Maintenance />} />
             <Route path="alerts" element={<Alerts />} />
+          </Route>
+
+          {/* Driver pages - Nested routes with DashboardLayout */}
+          <Route
+            path="/driver"
+            element={
+              <PrivateRoute allowedRoles={['driver']}>
+                <DashboardLayout />
+              </PrivateRoute>
+            }
+          >
+            <Route path="dashboard" element={<DriverDashboard />} />
+            <Route path="trips" element={<DriverTrips />} />
+            <Route path="trips/:id" element={<TripDetails />} />
+            <Route path="trips/:id/start" element={<StartTrip />} />
+            <Route path="trips/:id/finish" element={<FinishTrip />} />
           </Route>
 
           {/* Default route */}
