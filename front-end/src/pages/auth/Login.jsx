@@ -160,7 +160,7 @@ const Login = () => {
           </form>
 
           {/* Demo credentials */}
-          <div className="mt-6 p-4 bg-beige rounded-lg">
+          {/* <div className="mt-6 p-4 bg-beige rounded-lg">
             <p className="text-xs text-gray-600 text-center mb-2 font-semibold">
               Demo Accounts:
             </p>
@@ -169,7 +169,7 @@ const Login = () => {
               <p>🚛 Driver: driver@ictruckflow.com</p>
               <p className="text-center mt-2">Password: password123</p>
             </div>
-          </div>
+          </div> */}
         </div>
 
         {/* Footer */}
