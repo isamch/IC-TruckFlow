@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  # MongoDB
+  mongodb:
+    image: mongo:7.0
+    container_name: truckflow-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - truckflow-network
+
+  # Backend
+  backend:
+    build:
+      context: ./back-end
+      dockerfile: Dockerfile
+    container_name: truckflow-backend
+    restart: unless-stopped
+    ports:
+      - "${PORT}:${PORT}"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: ${PORT}
+      MONGODB_URI: ${MONGODB_URI}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      JWT_ACCESS_EXPIRES_IN: ${JWT_ACCESS_EXPIRES_IN}
+      JWT_REFRESH_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN}
+      HMAC_VERIFICATION_CODE_SECRET: ${HMAC_VERIFICATION_CODE_SECRET}
+    depends_on:
+      - mongodb
+    volumes:
+      - ./back-end:/app
+      - /app/node_modules
+    networks:
+      - truckflow-network
+
+  # Frontend
+  frontend:
+    build:
+      context: ./front-end
+      dockerfile: Dockerfile
+    container_name: truckflow-frontend
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_URL: ${VITE_API_URL}
+    depends_on:
+      - backend
+    volumes:
+      - ./front-end:/app
+      - /app/node_modules
+    networks:
+      - truckflow-network
+
+volumes:
+  mongodb_data:
+
+networks:
+  truckflow-network:
+    driver: bridge
