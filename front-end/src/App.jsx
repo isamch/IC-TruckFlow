@@ -29,6 +29,8 @@ import DriverTripDetails from './pages/driver/TripDetails';
 import StartTrip from './pages/driver/StartTrip';
 import FinishTrip from './pages/driver/FinishTrip';
 import DriverFuelLogs from './pages/driver/FuelLogs';
+import DriverMaintenance from './pages/driver/Maintenance';
+import DriverAlerts from './pages/driver/Alerts';
 
 function App() {
   return (
@@ -77,6 +79,8 @@ function App() {
             <Route path="trips/:id/start" element={<StartTrip />} />
             <Route path="trips/:id/finish" element={<FinishTrip />} />
             <Route path="fuel-logs" element={<DriverFuelLogs />} />
+            <Route path="maintenance" element={<DriverMaintenance />} />
+            <Route path="alerts" element={<DriverAlerts />} />
           </Route>
 
           {/* Default route */}

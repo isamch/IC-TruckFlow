@@ -28,6 +28,7 @@ const Sidebar = ({ role = 'admin' }) => {
 
   // Driver links
   const driverLinks = [
+    { path: '/driver/dashboard', icon: FaTachometerAlt, label: 'Dashboard' },
     { path: '/driver/trips', icon: FaRoute, label: 'My Trips' },
     { path: '/driver/fuel-logs', icon: FaGasPump, label: 'Fuel Logs' },
     { path: '/driver/maintenance', icon: FaTools, label: 'Maintenance' },
