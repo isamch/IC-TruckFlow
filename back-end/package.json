@@ -8,6 +8,9 @@
   "scripts": {
     "dev": "nodemon server.js",
     "start": "node server.js",
+    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --detectOpenHandles",
+    "test:watch": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --watch",
+    "test:coverage": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --coverage",
     "seed:db": "node src/scripts/seedDatabase.js",
     "make:controller": "node src/console/index.js make:controller",
     "make:model": "node src/console/index.js make:model",
@@ -37,6 +40,8 @@
     "nodemailer": "^7.0.5"
   },
   "devDependencies": {
+    "cross-env": "^7.0.3",
+    "jest": "^29.7.0",
     "nodemon": "^3.1.10"
   }
 }
