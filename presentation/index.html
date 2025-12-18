@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IC-TruckFlow - Système de Gestion de Flotte</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="shortcut icon" href="https://cdn-icons-png.flaticon.com/512/2554/2554978.png" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1E40AF',
+                        secondary: '#F97316',
+                        accent: '#10B981',
+                        'light-bg': '#F5F5DC'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .slide {
+            display: none;
+        }
+        .slide.active {
+            display: block;
+        }
+        .tech-icon {
+            transition: all 0.3s ease;
+        }
+        .tech-icon:hover {
+            transform: translateY(-5px);
+        }
+    </style>
+</head>
+<body class="bg-light-bg min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-6xl w-full bg-white rounded-xl shadow-2xl overflow-hidden">
+        <!-- Navigation Bar -->
+        <div class="bg-primary text-white p-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold">IC-TruckFlow</h1>
+            <div class="flex space-x-2">
+                <button onclick="prevSlide()" class="bg-white bg-opacity-20 hover:bg-opacity-30 p-2 rounded-full transition">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button onclick="nextSlide()" class="bg-white bg-opacity-20 hover:bg-opacity-30 p-2 rounded-full transition">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Slide Indicators -->
+        <div class="bg-gray-100 py-2 px-4 flex justify-center space-x-2">
+            <button onclick="goToSlide(0)" class="slide-indicator w-3 h-3 rounded-full bg-primary transition"></button>
+            <button onclick="goToSlide(1)" class="slide-indicator w-3 h-3 rounded-full bg-gray-300 transition"></button>
+            <button onclick="goToSlide(2)" class="slide-indicator w-3 h-3 rounded-full bg-gray-300 transition"></button>
+            <button onclick="goToSlide(3)" class="slide-indicator w-3 h-3 rounded-full bg-gray-300 transition"></button>
+            <button onclick="goToSlide(4)" class="slide-indicator w-3 h-3 rounded-full bg-gray-300 transition"></button>
+        </div>
+
+        <!-- Slides Container -->
+        <div class="relative p-8 h-[600px] overflow-y-auto">
+            <!-- Slide 1: Présentation du Projet -->
+            <div class="slide active">
+                <div class="flex flex-col md:flex-row h-full">
+                    <div class="md:w-1/2 flex flex-col justify-center pr-8">
+                        <h2 class="text-4xl font-bold text-primary mb-6">IC-TruckFlow</h2>
+                        <h3 class="text-2xl font-semibold text-gray-700 mb-6">Système de Gestion de Flotte</h3>
+                        
+                        <div class="space-y-4">
+                            <div class="flex items-start">
+                                <i class="fas fa-check-circle text-accent mt-1 mr-3"></i>
+                                <p class="text-gray-700">Application web full-stack pour la gestion intelligente de flottes de camions</p>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fas fa-check-circle text-accent mt-1 mr-3"></i>
+                                <p class="text-gray-700">Architecture moderne : Backend Node.js + Frontend React</p>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fas fa-check-circle text-accent mt-1 mr-3"></i>
+                                <p class="text-gray-700">Deux rôles utilisateurs : Administrateurs et Chauffeurs</p>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fas fa-check-circle text-accent mt-1 mr-3"></i>
+                                <p class="text-gray-700">Gestion complète : véhicules, trajets, maintenance, carburant</p>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fas fa-check-circle text-accent mt-1 mr-3"></i>
+                                <p class="text-gray-700">Déploiement containerisé avec Docker</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="md:w-1/2 flex items-center justify-center">
+                        <img src="https://picsum.photos/seed/truck-tech/500/350.jpg" alt="Camion moderne avec icônes technologiques" class="rounded-lg shadow-lg">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 2: Architecture Technique Backend -->
+            <div class="slide">
+                <h2 class="text-3xl font-bold text-primary mb-6 text-center">Backend - API RESTful Robuste</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-700 mb-4 border-b-2 border-secondary pb-2">Stack Technique</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center tech-icon">
+                                <i class="fab fa-node-js text-4xl text-primary mr-3"></i>
+                                <div>
+                                    <p class="font-medium">Runtime</p>
+                                    <p class="text-gray-600">Node.js avec Express.js v5</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center tech-icon">
+                                <i class="fas fa-database text-4xl text-green-600 mr-3"></i>
+                                <div>
+                                    <p class="font-medium">Base de données</p>
+                                    <p class="text-gray-600">MongoDB avec Mongoose ODM</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center tech-icon">
+                                <i class="fas fa-shield-alt text-4xl text-secondary mr-3"></i>
+                                <div>
+                                    <p class="font-medium">Authentification</p>
+                                    <p class="text-gray-600">JWT (Access + Refresh Tokens)</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center tech-icon">
+                                <i class="fas fa-lock text-4xl text-red-500 mr-3"></i>
+                                <div>
+                                    <p class="font-medium">Sécurité</p>
+                                    <p class="text-gray-600">Helmet, CORS, bcryptjs</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-700 mb-4 border-b-2 border-secondary pb-2">Fonctionnalités Backend</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-start">
+                                <i class="fas fa-users text-accent mt-1 mr-3"></i>
+                                <p class="text-gray-700">Gestion des utilisateurs (Admin/Chauffeur)</p>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fas fa-truck text-accent mt-1 mr-3"></i>
+                                <p class="text-gray-700">CRUD complet pour camions, remorques, pneus</p>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fas fa-route text-accent mt-1 mr-3"></i>
+                                <p class="text-gray-700">Système de trajets avec statuts</p>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fas fa-tools text-accent mt-1 mr-3"></i>
+                                <p class="text-gray-700">Alertes de maintenance automatiques</p>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fas fa-vial text-accent mt-1 mr-3"></i>
+                                <p class="text-gray-700">Tests unitaires avec Jest</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-6 flex justify-center">
+                    <img src="https://picsum.photos/seed/api-architecture/600/200.jpg" alt="Diagramme d'architecture API" class="rounded-lg shadow-lg">
+                </div>
+            </div>
+
+            <!-- Slide 3: Architecture Technique Frontend -->
+            <div class="slide">
+                <h2 class="text-3xl font-bold text-primary mb-6 text-center">Frontend - Interface Utilisateur Moderne</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-700 mb-4 border-b-2 border-secondary pb-2">Stack Technique</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center tech-icon">
+                                <i class="fab fa-react text-4xl text-blue-500 mr-3"></i>
+                                <div>
+                                    <p class="font-medium">Framework</p>
+                                    <p class="text-gray-600">React 19 avec Vite</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center tech-icon">
+                                <i class="fas fa-route text-4xl text-secondary mr-3"></i>
+                                <div>
+                                    <p class="font-medium">Routing</p>
+                                    <p class="text-gray-600">React Router DOM v7</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center tech-icon">
+                                <i class="fas fa-paint-brush text-4xl text-purple-500 mr-3"></i>
+                                <div>
+                                    <p class="font-medium">Styling</p>
+                                    <p class="text-gray-600">TailwindCSS</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center tech-icon">
+                                <i class="fas fa-plug text-4xl text-green-500 mr-3"></i>
+                                <div>
+                                    <p class="font-medium">HTTP Client</p>
+                                    <p class="text-gray-600">Fetch API avec interceptors</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-700 mb-4 border-b-2 border-secondary pb-2">Interfaces Utilisateur</h3>
+                        <div class="space-y-3">
+                            <div class="bg-gray-100 p-3 rounded-lg">
+                                <p class="font-semibold text-primary">Admin</p>
+                                <p class="text-sm text-gray-600">Dashboard, gestion utilisateurs, camions, remorques, pneus, trajets, alertes</p>
+                            </div>
+                            <div class="bg-gray-100 p-3 rounded-lg">
+                                <p class="font-semibold text-primary">Chauffeur</p>
+                                <p class="text-sm text-gray-600">Dashboard personnel, mes trajets, démarrer/terminer trajet, alertes camion actuel</p>
+                            </div>
+                            <div class="flex items-start mt-4">
+                                <i class="fas fa-mobile-alt text-accent mt-1 mr-3"></i>
+                                <p class="text-gray-700">Layout responsive avec sidebar et navigation intuitive</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-6 flex justify-center">
+                    <img src="https://picsum.photos/seed/dashboard-mockup/600/200.jpg" alt="Mockup d'interface dashboard" class="rounded-lg shadow-lg">
+                </div>
+            </div>
+
+            <!-- Slide 4: Fonctionnalités Clés -->
+            <div class="slide">
+                <h2 class="text-3xl font-bold text-primary mb-6 text-center">Modules Principaux du Système</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white border-l-4 border-primary p-4 rounded shadow">
+                        <div class="flex items-center mb-3">
+                            <i class="fas fa-truck text-2xl text-primary mr-3"></i>
+                            <h3 class="text-xl font-semibold">Gestion de Flotte</h3>
+                        </div>
+                        <ul class="space-y-2 text-gray-700">
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-accent mt-1 mr-2 text-sm"></i>
+                                <span>Suivi en temps réel des camions</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-accent mt-1 mr-2 text-sm"></i>
+                                <span>Gestion des remorques et pneus</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-accent mt-1 mr-2 text-sm"></i>
+                                <span>Kilométrage et statuts actualisés</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-white border-l-4 border-secondary p-4 rounded shadow">
+                        <div class="flex items-center mb-3">
+                            <i class="fas fa-route text-2xl text-secondary mr-3"></i>
+                            <h3 class="text-xl font-semibold">Gestion des Trajets</h3>
+                        </div>
+                        <ul class="space-y-2 text-gray-700">
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-accent mt-1 mr-2 text-sm"></i>
+                                <span>Planification et assignation</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-accent mt-1 mr-2 text-sm"></i>
+                                <span>Démarrage/fin de trajet</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-accent mt-1 mr-2 text-sm"></i>
+                                <span>Calcul automatique des distances</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-white border-l-4 border-accent p-4 rounded shadow">
+                        <div class="flex items-center mb-3">
+                            <i class="fas fa-tools text-2xl text-accent mr-3"></i>
+                            <h3 class="text-xl font-semibold">Maintenance Intelligente</h3>
+                        </div>
+                        <ul class="space-y-2 text-gray-700">
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-accent mt-1 mr-2 text-sm"></i>
+                                <span>Règles de maintenance personnalisables</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-accent mt-1 mr-2 text-sm"></i>
+                                <span>Alertes automatiques par priorité</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-accent mt-1 mr-2 text-sm"></i>
+                                <span>Blocage de départ si alertes critiques</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-white border-l-4 border-purple-500 p-4 rounded shadow">
+                        <div class="flex items-center mb-3">
+                            <i class="fas fa-file-alt text-2xl text-purple-500 mr-3"></i>
+                            <h3 class="text-xl font-semibold">Logs et Rapports</h3>
+                        </div>
+                        <ul class="space-y-2 text-gray-700">
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-accent mt-1 mr-2 text-sm"></i>
+                                <span>Enregistrement du carburant consommé</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-accent mt-1 mr-2 text-sm"></i>
+                                <span>Historique maintenance par véhicule</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-accent mt-1 mr-2 text-sm"></i>
+                                <span>Génération de rapports PDF</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="mt-6 flex justify-center">
+                    <img src="https://picsum.photos/seed/modules-infographic/600/150.jpg" alt="Infographie avec icônes des modules" class="rounded-lg shadow-lg">
+                </div>
+            </div>
+
+            <!-- Slide 5: Infrastructure et Déploiement -->
+            <div class="slide">
+                <h2 class="text-3xl font-bold text-primary mb-6 text-center">DevOps et Outils de Développement</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-700 mb-4 border-b-2 border-secondary pb-2">Containerisation Docker</h3>
+                        <div class="bg-gray-100 p-4 rounded-lg mb-4">
+                            <p class="font-medium text-primary mb-2">Docker Compose orchestrant 3 services:</p>
+                            <ul class="space-y-2">
+                                <li class="flex items-center">
+                                    <i class="fas fa-database text-green-600 mr-2"></i>
+                                    <span>MongoDB (base de données)</span>
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-server text-blue-500 mr-2"></i>
+                                    <span>Backend API (port 5000)</span>
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fab fa-react text-blue-400 mr-2"></i>
+                                    <span>Frontend React (port 5173)</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex items-start">
+                                <i class="fas fa-hdd text-accent mt-1 mr-3"></i>
+                                <p class="text-gray-700">Volumes persistants pour les données</p>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fas fa-network-wired text-accent mt-1 mr-3"></i>
+                                <p class="text-gray-700">Network bridge pour communication inter-services</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-700 mb-4 border-b-2 border-secondary pb-2">Outils de Développement</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-start">
+                                <i class="fas fa-terminal text-accent mt-1 mr-3"></i>
+                                <p class="text-gray-700">Scripts CLI personnalisés pour générateurs</p>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fas fa-seedling text-accent mt-1 mr-3"></i>
+                                <p class="text-gray-700">Seeding Database avec Faker.js</p>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fas fa-file-code text-accent mt-1 mr-3"></i>
+                                <p class="text-gray-700">Collection Postman pour documentation API</p>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fas fa-vial text-accent mt-1 mr-3"></i>
+                                <p class="text-gray-700">Tests automatisés avec Jest</p>
+                            </div>
+                        </div>
+                        
+                        <h3 class="text-xl font-semibold text-gray-700 mt-6 mb-4 border-b-2 border-secondary pb-2">Sécurité</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-start">
+                                <i class="fas fa-key text-accent mt-1 mr-3"></i>
+                                <p class="text-gray-700">Variables d'environnement (.env)</p>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fas fa-fingerprint text-accent mt-1 mr-3"></i>
+                                <p class="text-gray-700">HMAC pour codes de vérification</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-6 flex justify-center">
+                    <img src="https://picsum.photos/seed/docker-compose/600/150.jpg" alt="Schéma Docker Compose" class="rounded-lg shadow-lg">
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="bg-gray-100 p-4 text-center text-gray-600 text-sm">
+            <p>IC-TruckFlow - Système de Gestion de Flotte Intelligente</p>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const indicators = document.querySelectorAll('.slide-indicator');
+        
+        function showSlide(index) {
+            slides.forEach(slide => slide.classList.remove('active'));
+            indicators.forEach(indicator => indicator.classList.remove('bg-primary'));
+            indicators.forEach(indicator => indicator.classList.add('bg-gray-300'));
+            
+            slides[index].classList.add('active');
+            indicators[index].classList.remove('bg-gray-300');
+            indicators[index].classList.add('bg-primary');
+            
+            currentSlide = index;
+        }
+        
+        function nextSlide() {
+            const next = (currentSlide + 1) % slides.length;
+            showSlide(next);
+        }
+        
+        function prevSlide() {
+            const prev = (currentSlide - 1 + slides.length) % slides.length;
+            showSlide(prev);
+        }
+        
+        function goToSlide(index) {
+            showSlide(index);
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') nextSlide();
+            if (e.key === 'ArrowLeft') prevSlide();
+        });
+    </script>
+</body>
+</html>
